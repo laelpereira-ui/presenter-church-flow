@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Presenter Church Flow</title>
+<meta name="description" content="Software de projeção para igrejas e eventos. Letras, Bíblia, cifra no palco, video mapping, painel LED, remote, OBS e NDI. Gratuito, sem anúncios e completo para sempre. Windows e Mac.">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: uma noite de culto vista de dentro da régie. Fundo azul-noite com uma aurora viva (turquesa → azul → roxo → rosa)
+   que atravessa a página; o produto aparece sempre como luz projetada: telas, monitores, celulares a brilhar.
+   Design escuro por escolha (é um programa de projeção). */
+:root{
+  --bg:#05060f;            /* noite */
+  --bg-2:#0a0d1f;          /* superfície */
+  --bg-3:#11152d;          /* superfície elevada */
+  --glass:rgba(255,255,255,.045);
+  --glass-2:rgba(255,255,255,.08);
+  --line:rgba(170,185,255,.12);
+  --line-2:rgba(170,185,255,.22);
+  --text:#f2f4ff;
+  --muted:#9ea7c9;
+  --cyan:#22d3ee;
+  --blue:#3b82f6;
+  --violet:#8b5cf6;
+  --pink:#ec4899;
+  --live:#ff4d6d;
+  --gold:#ffc857;          /* amarelo do logo */
+  --amber:#f59e0b;         /* âmbar do logo */
+  --gold-ink:#2a1700;      /* texto sobre dourado */
+  --grad:linear-gradient(100deg,#ffc857 0%,#ff7aa8 34%,#a78bfa 67%,#60a5fa 100%);   /* nascer da luz: dourado → rosa → roxo → azul */
+  --grad-gold:linear-gradient(135deg,#ffd98a 0%,#ffc857 40%,#f59e0b 100%);
+  --grad-cool:linear-gradient(100deg,var(--cyan) 0%,var(--blue) 32%,var(--violet) 64%,var(--pink) 100%);
+  --grad-soft:linear-gradient(135deg,rgba(255,200,87,.2),rgba(236,72,153,.12) 40%,rgba(139,92,246,.14) 70%,rgba(59,130,246,.16));
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Geist","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"Geist Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --wrap:1240px;
+  --gutter:clamp(16px,4vw,40px);
+  --r:22px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img{max-width:100%;display:block;height:auto}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:700;margin:0;letter-spacing:-.025em;line-height:1.02;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gutter)}
+.grad-text{background:var(--grad);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shift 8s ease-in-out infinite alternate}
+@keyframes shift{to{background-position:100% 0}}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font:600 12.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:var(--grad)}
+.lede{color:var(--muted);font-size:clamp(17px,1.5vw,20px);max-width:60ch}
+kbd{font-family:var(--f-mono);font-size:.78em;font-weight:600;padding:.12em .45em;border-radius:6px;border:1px solid var(--line-2);border-bottom-width:2px;background:var(--bg-3);color:var(--text)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:8px}
+section{position:relative;scroll-margin-top:84px}
+.sec{padding-block:clamp(80px,11vw,150px)}
+.sec-head{display:grid;gap:18px;margin-bottom:clamp(40px,5vw,64px);max-width:820px;align-content:start}
+.sec-head.center{margin-inline:auto;text-align:center;justify-items:center}
+.sec-head h2{font-size:clamp(38px,5.4vw,76px)}
+
+/* aurora fixa por trás de tudo */
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse 120% 80% at 50% -10%,#0d1340 0%,var(--bg) 60%)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.42;mix-blend-mode:screen;animation:float 26s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:52vmax;height:52vmax;left:-14vmax;top:-18vmax;background:var(--cyan);animation-duration:24s}
+.aurora i:nth-child(2){width:46vmax;height:46vmax;right:-12vmax;top:-10vmax;background:var(--violet);animation-duration:30s;animation-delay:-8s}
+.aurora i:nth-child(3){width:40vmax;height:40vmax;left:30%;top:35%;background:var(--blue);opacity:.28;animation-duration:34s;animation-delay:-14s}
+.aurora i:nth-child(5){width:44vmax;height:44vmax;left:18%;bottom:-26vmax;background:var(--amber);opacity:.26;animation-duration:32s;animation-delay:-11s}
+.aurora i:nth-child(4){width:38vmax;height:38vmax;right:-6vmax;bottom:-16vmax;background:var(--pink);opacity:.3;animation-duration:28s;animation-delay:-4s}
+@keyframes float{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,4vmax) scale(1.12)}100%{transform:translate(-4vmax,8vmax) scale(.94)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.gridlines{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000 10%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000 10%,transparent 75%);opacity:.5}
+
+/* revelar ao rolar (sem esconder: começa visível e ganha movimento) */
+@supports (animation-timeline: view()){
+  .rise{animation:rise linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+  @keyframes rise{from{opacity:.2;transform:translateY(46px) scale(.97)}to{opacity:1;transform:none}}
+}
+
+/* ---------- Botões ---------- */
+.btn{position:relative;display:inline-flex;align-items:center;gap:.65em;font:600 16px/1.1 var(--f-body);padding:16px 24px;border-radius:999px;border:1px solid transparent;text-decoration:none;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background .2s;color:var(--text);isolation:isolate}
+.btn-primary{background:var(--grad-gold);background-size:160% 100%;color:var(--gold-ink);box-shadow:0 10px 40px -10px rgba(255,190,70,.75),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-primary:hover{transform:translateY(-2px);background-position:100% 0;box-shadow:0 0 0 6px rgba(255,200,87,.14),0 18px 60px -12px rgba(255,170,60,.85),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-glass{background:var(--glass);border-color:var(--line-2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-glass:hover{background:var(--glass-2);border-color:rgba(255,200,87,.6)}
+.btn .bs{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.btn small{display:block;font:500 12px/1.2 var(--f-mono);opacity:.85;margin-top:3px}
+.btn[aria-disabled="true"]{background:var(--glass);color:var(--muted);box-shadow:none;cursor:not-allowed;border-color:var(--line);transform:none}
+
+/* ---------- Navegação ---------- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;padding-block:12px}
+.nav .bar{display:flex;align-items:center;gap:20px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(10,13,31,.62);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 10px 40px -20px rgba(0,0,0,.8)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;white-space:nowrap;font-size:16px}
+.brand img{width:30px;height:30px;border-radius:9px}
+.brand span i{font-style:normal;color:var(--muted);font-weight:500}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:15px;padding:8px 12px;border-radius:999px;transition:color .2s,background .2s}
+.nav-links a:hover{color:var(--text);background:var(--glass)}
+.nav .btn{padding:11px 18px;font-size:14.5px}
+@media (max-width:900px){.nav-links{display:none}.nav .btn{margin-left:auto}}
+@media (max-width:420px){.brand span i{display:none}.nav .btn{padding:10px 14px}}
+
+/* ---------- HERO ---------- */
+.hero{padding-block:clamp(36px,6vw,80px) 40px;text-align:center;overflow:clip}
+.hero .wrap{position:relative}
+.new-pill{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:var(--glass);border:1px solid var(--line-2);text-decoration:none;font-size:14px;color:var(--text);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:border-color .2s}
+.new-pill:hover{border-color:rgba(255,200,87,.7)}
+.new-pill b{font:700 11px/1 var(--f-mono);letter-spacing:.08em;padding:6px 9px;border-radius:999px;background:var(--grad-gold);color:var(--gold-ink)}
+.hero h1{font-size:clamp(48px,8.4vw,128px);margin:26px auto 22px;max-width:13ch;letter-spacing:-.04em;line-height:.95}
+.hero .lede{margin-inline:auto;text-align:center}
+.hero .ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:34px}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin-top:26px;font:500 13.5px/1 var(--f-mono);color:var(--muted)}
+.trust span{display:inline-flex;align-items:center;gap:8px}
+.trust span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.hero-stage{position:relative;margin-top:clamp(48px,7vw,84px);perspective:1800px}
+.hero-shot{position:relative;border-radius:18px;transform-origin:50% 0;transform:rotateX(var(--tilt,22deg)) scale(var(--sc,.9));transition:transform .08s linear;will-change:transform}
+.hero-shot .frame{border-radius:18px;padding:1px;background:linear-gradient(140deg,rgba(255,200,87,.85),rgba(236,72,153,.4) 40%,rgba(139,92,246,.35) 65%,rgba(34,211,238,.75));box-shadow:0 60px 140px -40px rgba(59,130,246,.55),0 0 0 1px rgba(255,255,255,.04)}
+.hero-shot .inner{border-radius:17px;overflow:hidden;background:var(--bg-2)}
+.hero-shot .chrome{display:flex;gap:7px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);font:500 12px/1 var(--f-mono);color:var(--muted)}
+.hero-shot .chrome i{width:10px;height:10px;border-radius:50%;background:var(--line-2)}
+.hero-shot .chrome span{margin-left:8px}
+.hero-glow{position:absolute;inset:8% 10% -6%;background:var(--grad);filter:blur(90px);opacity:.35;z-index:-1;border-radius:50%}
+.float{position:absolute;z-index:3;border-radius:18px;background:rgba(10,13,31,.72);border:1px solid var(--line-2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 30px 70px -25px rgba(0,0,0,.9);transform:translate3d(calc(var(--px,0)*var(--d,1px)),calc(var(--py,0)*var(--d,1px)),0);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.f-phone{left:-3%;bottom:-6%;width:clamp(120px,15vw,200px);padding:7px;border-radius:30px;--d:22px}
+.f-phone img{border-radius:24px}
+.f-stage{right:-3%;top:16%;width:clamp(180px,26vw,360px);padding:10px;--d:-18px}
+.f-stage img{border-radius:10px}
+.f-cap{display:flex;align-items:center;justify-content:space-between;gap:10px;font:600 11.5px/1 var(--f-mono);color:var(--muted);padding:2px 4px 9px}
+.f-cap b{color:var(--text);font-weight:600}
+.f-live{left:6%;top:-5%;display:flex;align-items:center;gap:10px;padding:10px 14px;font:600 13px/1 var(--f-mono);--d:14px}
+.f-live .dot{width:9px;height:9px;border-radius:50%;background:var(--live);box-shadow:0 0 12px var(--live);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.3}}
+.f-proj{right:6%;bottom:-8%;width:clamp(170px,22vw,300px);padding:8px;--d:-26px}
+.f-proj img{border-radius:10px}
+@media (max-width:760px){.hero-shot .chrome span{display:none}.f-stage{top:auto;bottom:-14%;right:-2%;width:46%}.f-proj{display:none}.f-phone{width:26%;left:-2%;bottom:-12%}.f-live{top:-7%}}
+
+/* ---------- Marquee ---------- */
+.marquee{padding-block:50px 20px;display:grid;gap:14px;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);overflow:hidden}
+.mq-row{display:flex;gap:14px;width:max-content;animation:mq 46s linear infinite}
+.mq-row.rev{animation-direction:reverse;animation-duration:52s}
+.mq-row span{display:inline-flex;align-items:center;gap:10px;white-space:nowrap;padding:12px 18px;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-weight:500;font-size:15.5px}
+.mq-row span i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--cyan));box-shadow:0 0 10px var(--c,var(--cyan))}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ---------- Demo interativa ---------- */
+.demo{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:980px){.demo{grid-template-columns:1fr}}
+.panel{border-radius:var(--r);background:rgba(10,13,31,.66);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.demo-main{padding:14px}
+.screen{position:relative;aspect-ratio:16/9;width:100%;border-radius:14px;overflow:hidden;background:#050818;container-type:inline-size;box-shadow:0 30px 90px -30px rgba(59,130,246,.6)}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%}
+.lyr{position:absolute;inset:0;display:grid;place-items:center;padding:6cqw 7cqw;text-align:center;font:700 4.3cqw/1.2 var(--f-body);color:#fff;text-shadow:0 .35cqw 1.6cqw rgba(0,0,0,.6);white-space:pre-line;perspective:900px}
+.lyr .t{display:block}
+.screen.lower .lyr{place-items:end center;padding:0 7cqw 5.5cqw}
+.screen.lower .lyr .t{font-size:3cqw;line-height:1.25;padding:2.2cqw 3.2cqw;border-radius:1.6cqw;background:rgba(10,13,31,.55);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset .5cqw 0 0 var(--gold);text-align:left;width:100%}
+.onair{position:absolute;left:2cqw;top:2cqw;z-index:3;font:700 1.35cqw/1 var(--f-mono);letter-spacing:.12em;background:var(--live);color:#fff;padding:.75cqw 1.1cqw;border-radius:.6cqw;display:flex;gap:.7cqw;align-items:center}
+.onair::before{content:"";width:.9cqw;height:.9cqw;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
+.counter{position:absolute;right:2cqw;top:2cqw;z-index:3;font:600 1.35cqw/1 var(--f-mono);color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);padding:.75cqw 1.1cqw;border-radius:.6cqw}
+/* transições (iguais às do programa) */
+.lyr.in{animation:var(--tin) var(--td,.6s) cubic-bezier(.2,.8,.2,1) both}
+.lyr.out{animation:var(--tout) var(--td,.6s) cubic-bezier(.4,0,.2,1) both}
+@keyframes fadeIn{from{opacity:0}} @keyframes fadeOut{to{opacity:0}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.75)}} @keyframes zoomOut{to{opacity:0;transform:scale(1.25)}}
+@keyframes slideIn{from{transform:translateX(100%)}} @keyframes slideOut{to{transform:translateX(-100%)}}
+@keyframes blurIn{from{opacity:0;filter:blur(24px)}} @keyframes blurOut{to{opacity:0;filter:blur(24px)}}
+@keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}} @keyframes flipOut{to{opacity:0;transform:rotateY(90deg)}}
+@keyframes wipeIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}} @keyframes wipeOut{to{opacity:0}}
+.ctrl{display:grid;gap:14px;padding:16px 6px 4px}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctrl-row .lbl{font:600 11.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:96px}
+.chip{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--f-body);color:var(--text);background:var(--glass);border:1px solid var(--line);border-left:3px solid var(--c,var(--line-2));padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .2s,transform .15s,border-color .2s}
+.chip:hover{background:var(--glass-2)}
+.chip:active{transform:scale(.96)}
+.chip kbd{font-size:11px;padding:2px 6px}
+.chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c,var(--cyan)) 24%,transparent);border-color:color-mix(in srgb,var(--c,var(--cyan)) 70%,transparent)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:12px;background:var(--glass);border:1px solid var(--line)}
+.seg button{font:500 13.5px/1 var(--f-body);color:var(--muted);background:transparent;border:0;padding:9px 12px;border-radius:9px;cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.hint{font-size:13.5px;color:var(--muted)}
+.demo-side{display:grid;gap:22px}
+.stagebox{padding:14px}
+.monitor{aspect-ratio:16/10;border-radius:12px;background:#000;padding:4.5% 5%;display:flex;flex-direction:column;gap:6%;overflow:hidden;container-type:inline-size;border:1px solid var(--line)}
+.mon-top{display:flex;justify-content:space-between;font:600 3.6cqw/1 var(--f-body);color:#cbd5e1}
+.mon-top b{color:#fff;font-variant-numeric:tabular-nums}
+.mon-sec{font:700 3.2cqw/1 var(--f-mono);letter-spacing:.12em;color:#94a3b8;text-transform:uppercase}
+.mon-lyr{display:grid;gap:2.4cqw;font:700 4.8cqw/1 var(--f-body);color:#fff}
+.mon-lyr .ln{padding-top:4.6cqw;position:relative;white-space:nowrap}
+.mon-lyr .cw{position:relative}
+.mon-lyr .cw i{position:absolute;left:0;top:-4.8cqw;font:700 3.6cqw/1 var(--f-body);font-style:normal;color:#fbbf24}
+.box-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.box-title b{font-size:15px}
+.box-title span{font:600 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.phonebox{padding:16px;display:flex;gap:16px;align-items:center}
+.mini-phone{flex:none;width:96px;border-radius:20px;padding:5px;background:#000;border:1px solid var(--line-2)}
+.mini-phone img{border-radius:16px}
+.phonebox p{font-size:14.5px;color:var(--muted)}
+.phonebox p b{color:var(--text)}
+
+/* ---------- Promessa ---------- */
+.promise{text-align:center}
+.zeros{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:10px}
+.zero{padding:30px 18px;border-radius:var(--r);background:var(--glass);border:1px solid var(--line);display:grid;gap:8px;justify-items:center}
+.zero .n{font:800 clamp(56px,7vw,96px)/1.05 var(--f-display);letter-spacing:-.02em;padding:0 .14em;display:inline-block}
+.zero b{font-size:17px}
+.zero p{color:var(--muted);font-size:14.5px;max-width:26ch}
+@media (max-width:900px){.zeros{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.zeros{grid-template-columns:1fr}}
+
+/* ---------- Novidades (bento) ---------- */
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.card{position:relative;border-radius:var(--r);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+.card::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),rgba(255,200,87,.16),rgba(139,92,246,.12) 40%,transparent 65%);opacity:0;transition:opacity .35s}
+.card:hover::before{opacity:1}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:radial-gradient(380px circle at var(--mx,50%) var(--my,0%),rgba(255,200,87,.9),rgba(236,72,153,.5) 40%,transparent 70%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s;pointer-events:none}
+.card:hover::after{opacity:1}
+.card .txt{padding:26px 26px 22px;display:grid;gap:10px;align-content:start}
+.card h3{font-size:clamp(24px,2.3vw,32px)}
+.card p{color:var(--muted);font-size:15.5px}
+.badge{justify-self:start;font:700 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:999px;background:var(--grad-gold);color:var(--gold-ink)}
+.badge.soft{background:var(--glass-2);color:var(--cyan)}
+.card .shot{margin:auto 0 0 26px;border-radius:14px 0 0 0;overflow:hidden;border:1px solid var(--line-2);border-right:0;border-bottom:0;box-shadow:0 -20px 60px -30px rgba(59,130,246,.6)}
+.card .shot.full{margin:auto 18px 18px;border-radius:12px;border:1px solid var(--line-2)}
+.c-3{grid-column:span 3}.c-2{grid-column:span 2}.c-4{grid-column:span 4}.c-6{grid-column:span 6}
+@media (max-width:1000px){.c-2{grid-column:span 3}.c-4{grid-column:span 6}}
+@media (max-width:700px){.bento{grid-template-columns:1fr}.c-2,.c-3,.c-4,.c-6{grid-column:auto}}
+.mini-list{list-style:none;padding:0;margin:4px 0 0;display:grid;gap:7px;font-size:15px}
+.mini-list li{display:flex;gap:10px;align-items:flex-start}
+.mini-list li::before{content:"";flex:none;margin-top:.55em;width:7px;height:7px;border-radius:2px;transform:rotate(45deg);background:var(--grad)}
+
+/* mapping animado */
+.mapping{position:relative;margin:auto 18px 18px;aspect-ratio:16/8.4;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,#111a3d,#04050c 70%);border:1px solid var(--line-2)}
+.mapping .sf{position:absolute;overflow:hidden;background:linear-gradient(120deg,var(--gold),var(--pink),var(--violet),var(--blue),var(--cyan),var(--gold));background-size:400% 400%;animation:flow 9s linear infinite;box-shadow:0 0 30px -4px rgba(99,102,241,.6)}
+.mapping .sf::after{content:attr(data-n);position:absolute;left:6px;top:6px;font:600 9.5px/1 var(--f-mono);color:#fff;background:rgba(0,0,0,.45);padding:3px 5px;border-radius:4px}
+@keyframes flow{to{background-position:400% 0}}
+.sf.col1{left:7%;top:12%;width:11%;height:76%;clip-path:polygon(0 3%,100% 0,100% 100%,0 97%);animation-delay:-1s}
+.sf.col2{right:7%;top:12%;width:11%;height:76%;clip-path:polygon(0 0,100% 3%,100% 97%,0 100%);animation-delay:-4s}
+.sf.scr{left:25%;top:10%;width:50%;height:52%;display:grid;place-items:center;font:700 clamp(10px,1.5vw,18px)/1.2 var(--f-body);color:#fff;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.6);background:linear-gradient(120deg,#0b1d4f,#1e3a8a,#5b21b6,#0e7490,#0b1d4f);background-size:400% 400%}
+.sf.altar{left:30%;bottom:9%;width:40%;height:18%;clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);animation-delay:-6s}
+.mapping .beam{position:absolute;left:50%;bottom:-2%;width:160%;height:140%;transform:translateX(-50%);background:conic-gradient(from 180deg at 50% 100%,transparent 155deg,rgba(150,180,255,.12) 172deg,rgba(150,180,255,.18) 180deg,rgba(150,180,255,.12) 188deg,transparent 205deg);pointer-events:none;mix-blend-mode:screen}
+.led{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:auto 18px 18px;padding:10px;border-radius:12px;background:#03040a;border:1px solid var(--line-2)}
+.led i{aspect-ratio:1;border-radius:2px;background:var(--bg-3);animation:ledon 4s ease-in-out infinite;animation-delay:calc(var(--k)*45ms)}
+@keyframes ledon{0%,100%{background:#141a3a}40%{background:color-mix(in srgb,var(--gold) calc(100% - var(--h)*1%),var(--violet))}}
+
+
+/* ---------- Destaques ---------- */
+.search-demo{margin:auto 22px 22px;padding:16px;border-radius:16px;background:rgba(3,5,14,.7);border:1px solid var(--line-2);display:grid;gap:14px}
+.sd-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--glass);border:1px solid var(--line);color:var(--muted);flex-wrap:wrap}
+.sd-q{color:var(--text);font-weight:500}
+.sd-q::after{content:"";display:inline-block;width:2px;height:1em;margin-left:3px;vertical-align:-2px;background:var(--gold);animation:blink 1s steps(1) infinite}
+.sd-ok{margin-left:auto;font:600 12px/1 var(--f-mono);color:var(--gold)}
+.sd-ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sd-ctrl .lbl{font:600 11.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sd-slides{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:10px}
+.sl{border-radius:10px;overflow:hidden;border:1px solid var(--line-2);background:var(--bg-2);animation:pop .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.96)}}
+.sl .sh{display:flex;justify-content:space-between;font:700 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;background:color-mix(in srgb,var(--c) 30%,var(--bg-2));border-bottom:2px solid var(--c)}
+.sl .sb{aspect-ratio:16/9;display:grid;place-items:center;padding:6px 8px;text-align:center;font:700 10.5px/1.3 var(--f-body);color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6);background:linear-gradient(135deg,#0b1d4f,#0e7490 45%,#6d28d9);white-space:pre-line}
+.bibles{margin:auto 22px 22px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bx{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:var(--glass);border:1px solid var(--line);font-size:14.5px}
+.bx b{font:700 10px/1 var(--f-mono);padding:4px 6px;border-radius:5px;background:var(--grad-gold);color:var(--gold-ink)}
+.verse{grid-column:1/-1;margin-top:4px;padding:16px;border-radius:12px;background:radial-gradient(ellipse at 30% 0%,rgba(139,92,246,.35),transparent 60%),#070a1c;border:1px solid var(--line-2);font:600 17px/1.35 var(--f-body);color:#fff}
+.vref{display:block;font:600 11.5px/1 var(--f-mono);color:var(--gold);margin-bottom:8px}
+.card.c-6 .map-txt{max-width:820px}
+.card.c-6 .map-txt .tags{margin-top:8px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags span{font:500 13px/1 var(--f-mono);padding:8px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--line-2)}
+.mapping.big{aspect-ratio:21/8}
+.mapping.big .sf.scr{top:9%;height:50%}
+.mapping.big .sf.altar{left:33%;width:34%;bottom:7%;height:22%}
+.mapping .sf.altar::after{left:50%;transform:translateX(-50%)}
+.mapping .sf.camf{background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(34,211,238,.6),transparent 70%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(236,72,153,.45),transparent 70%),linear-gradient(180deg,#191542,#090818);animation:none}
+.mapping .sf.camf .silh{position:absolute;left:50%;bottom:0;width:70%;aspect-ratio:1/1.3;transform:translateX(-50%);background:radial-gradient(circle at 50% 24%,#05040a 0 17%,transparent 17.5%),radial-gradient(ellipse 50% 42% at 50% 100%,#05040a 0 98%,transparent 100%)}
+.mapping .sf.logo{display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#120c26,#2a1650,#120c26);animation:none}
+.mapping .sf.logo img{height:64%;width:auto;max-width:none;filter:drop-shadow(0 0 14px rgba(255,200,87,.7))}
+.mapping .blendz{position:absolute;left:44%;top:6%;width:12%;height:60%;border-left:1px dashed rgba(255,255,255,.55);border-right:1px dashed rgba(255,255,255,.55);display:flex;align-items:flex-start;justify-content:center;pointer-events:none}
+.mapping .blendz span{font:600 9.5px/1 var(--f-mono);color:#fff;background:rgba(0,0,0,.5);padding:3px 5px;border-radius:4px;margin-top:-16px}
+.inputs{margin:auto 22px 22px;display:grid;grid-template-columns:minmax(0,1fr) 46px minmax(0,1.1fr);gap:10px;align-items:center}
+.src-list{display:grid;gap:7px}
+.src-list span{font-size:13.5px;padding:9px 11px;border-radius:9px;background:var(--glass);border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src-list span:first-child{border-color:var(--gold);background:rgba(255,200,87,.12)}
+.inputs .arrow{width:46px;color:var(--gold)}
+.tilt{perspective:600px;display:grid;gap:8px;justify-items:center}
+.tilt .cam.mini{width:100%;aspect-ratio:3/4;border-radius:6px;transform:rotateY(-24deg);box-shadow:0 20px 50px -20px rgba(34,211,238,.6);border:1px solid var(--line-2)}
+.tilt b{font:600 12px/1 var(--f-mono);color:var(--muted)}
+.deck{margin:auto 22px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px;border-radius:14px;background:#030409;border:1px solid var(--line-2)}
+.deck span{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;text-align:center;font:600 10px/1.15 var(--f-body);color:#dbe1ff;background:linear-gradient(180deg,#1b2048,#11152d);border:1px solid var(--line);transition:background .25s,box-shadow .25s,color .25s;padding:3px}
+.deck span.hit{background:var(--grad-gold);color:var(--gold-ink);transition:none;box-shadow:0 0 22px rgba(255,200,87,.7)}
+.midi-line{margin:0 22px 22px;font:500 12.5px/1.8 var(--f-mono);color:var(--muted)}
+.midi-line span{color:var(--gold);margin-left:8px}
+.midi-line span:first-child{margin-left:0}
+.ndi{margin:auto 18px 20px;width:calc(100% - 36px);height:auto}
+.ndi .lines path{stroke:url(#ndiG);stroke:rgba(255,200,87,.7);stroke-dasharray:6 8;animation:dash 1.4s linear infinite}
+.ndi .lines path:nth-child(2n){stroke:rgba(96,165,250,.8);animation-direction:reverse}
+@keyframes dash{to{stroke-dashoffset:-28}}
+.ndi .node{fill:#141a3a;stroke:rgba(170,185,255,.3)}
+.ndi .hub{fill:#ffc857}
+.ndi text{fill:#dbe1ff}
+.ndi .hubt{fill:#2a1700;font-weight:700}
+.links-l{list-style:none;margin:auto 22px 22px;padding:0;display:grid;gap:7px}
+.links-l li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:center;padding:9px 12px;border-radius:10px;background:var(--glass);border:1px solid var(--line)}
+.links-l i{font-style:normal;color:var(--gold);grid-row:span 2;text-align:center}
+.links-l span{font-size:14px;font-weight:600}
+.links-l code{font:500 12px/1.2 var(--f-mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:700px){.mapping .sf::after,.mapping .blendz span{display:none}.mapping.big{aspect-ratio:16/10}.inputs{grid-template-columns:1fr}.inputs .arrow{transform:rotate(90deg);justify-self:center}.tilt .cam.mini{max-width:180px}}
+
+/* ---------- História (sticky) ---------- */
+.story{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,5vw,72px)}
+.steps-col{display:grid;gap:0}
+.step{min-height:68vh;display:grid;align-content:center;gap:14px;padding-block:30px 30px;padding-left:22px;border-left:2px solid var(--line);transition:border-color .4s}
+.step.on{border-left-color:var(--gold)}
+.step .num{transition:color .4s}
+.step:not(.on) .num{color:var(--muted)}
+.step .num{font:600 13px/1 var(--f-mono);color:var(--gold);letter-spacing:.1em}
+.step h3{font-size:clamp(32px,3.6vw,52px)}
+.step p{color:var(--muted);max-width:46ch}
+.step .m-img{display:none}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14vh);height:min(68vh,620px);display:grid;place-items:center}
+.stk{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(.96) translateY(18px);transition:opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1)}
+.stk.on{opacity:1;transform:none}
+.stk .dev{width:100%;border-radius:16px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 40px 120px -40px rgba(59,130,246,.7)}
+.stk .dev.phone{width:auto;height:100%;max-height:600px;aspect-ratio:780/1688;border-radius:36px;padding:8px;background:#000}
+.stk .dev.phone img{border-radius:28px;height:100%;width:100%;object-fit:cover}
+@media (max-width:900px){.story{grid-template-columns:1fr}.sticky-col{display:none}.step{min-height:0;padding-block:22px;border-left-color:var(--gold)}
+.step .num{color:var(--gold)!important}.step .m-img{display:block;margin-top:14px;border-radius:14px;overflow:hidden;border:1px solid var(--line-2)}.step .m-img.ph{max-width:240px;border-radius:28px;padding:6px;background:#000}}
+.cam{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:radial-gradient(ellipse 30% 55% at 22% 0%,rgba(34,211,238,.55),transparent 70%),radial-gradient(ellipse 30% 55% at 78% 0%,rgba(236,72,153,.5),transparent 70%),radial-gradient(ellipse 45% 40% at 50% 100%,rgba(139,92,246,.45),transparent 70%),linear-gradient(180deg,#15123a 0%,#090818 60%,#0c0a1a 100%)}
+.cam .silh{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24%;aspect-ratio:1/1.25;background:radial-gradient(circle at 50% 26%,#05040a 0 16%,transparent 16.5%),radial-gradient(ellipse 50% 45% at 50% 100%,#05040a 0 98%,transparent 100%)}
+.cam img{position:absolute;inset:0;width:100%;height:100%}
+.cam .rec{position:absolute;top:12px;left:14px;font:600 11.5px/1 var(--f-mono);color:#fff;display:flex;gap:7px;align-items:center;letter-spacing:.08em}
+.cam .rec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--live);animation:blink 1.4s infinite}
+
+/* ---------- Cifra no palco ---------- */
+.chords-wrap{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,64px);align-items:center}
+.tv{position:relative;border-radius:18px;padding:12px;background:linear-gradient(180deg,#1a1f3d,#0b0e22);border:1px solid var(--line-2);box-shadow:0 50px 120px -40px rgba(236,72,153,.45)}
+.tv img{border-radius:8px}
+.tv::after{content:"";position:absolute;left:50%;bottom:-26px;width:26%;height:26px;transform:translateX(-50%);background:linear-gradient(180deg,#151a35,#0a0d1f);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)}
+.feat-list{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:14px}
+.feat-list li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;align-items:start}
+.feat-list .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--grad-soft);border:1px solid var(--line-2);color:var(--gold)}
+.feat-list .ic svg{width:18px;height:18px}
+.feat-list b{display:block}
+.feat-list span{color:var(--muted);font-size:15.5px}
+@media (max-width:900px){.chords-wrap{grid-template-columns:1fr}}
+
+/* ---------- Tudo incluído ---------- */
+.all{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.all .card .txt{padding:22px}
+.all .card h4{font-size:19px;font-family:var(--f-body);letter-spacing:-.01em}
+.all .card .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--grad-soft);border:1px solid var(--line-2);color:var(--gold)}
+.all .card .ico svg{width:20px;height:20px}
+@media (max-width:1000px){.all{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.all{grid-template-columns:1fr}}
+
+/* ---------- Camadas ---------- */
+.layers{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:clamp(24px,5vw,64px);align-items:center}
+.stack-stage{position:relative;aspect-ratio:1/.9;max-width:100%;perspective:1400px;display:grid;place-items:center}
+.stack{position:relative;width:64%;aspect-ratio:16/9;transform-style:preserve-3d;transform:rotateX(58deg) rotateZ(-36deg)}
+.plane{position:absolute;inset:0;border-radius:8px;border:1px solid color-mix(in srgb,var(--c) 75%,transparent);background:color-mix(in srgb,var(--c) 12%,transparent);transform:translateZ(calc(var(--i)*var(--gap,32px)));transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background .3s;overflow:hidden}
+.stack-stage.open .plane{--gap:42px}
+.plane.on{box-shadow:0 0 0 2px var(--c),0 0 50px color-mix(in srgb,var(--c) 70%,transparent);background:color-mix(in srgb,var(--c) 28%,transparent);transform:translateZ(calc(var(--i)*var(--gap,32px) + 28px))}
+.plane .tag{position:absolute;left:6px;top:6px;font:600 9px/1 var(--f-mono);color:#fff;background:var(--c);padding:3px 5px;border-radius:3px;letter-spacing:.06em}
+.p-color{--c:#64748b;background:#03040a}
+.p-input{--c:#14b8a6;background:linear-gradient(135deg,rgba(20,184,166,.3),rgba(20,184,166,.05))}
+.p-media{--c:#3b82f6;background:url(img/projecao.webp) center/cover}
+.p-slide .txt{position:absolute;inset:30% 18%;display:grid;gap:6%}
+.p-slide .txt i{display:block;height:9px;border-radius:2px;background:#fff;opacity:.92}
+.p-ann .cardx{position:absolute;right:8%;top:14%;width:30%;height:34%;border-radius:4px;background:rgba(168,85,247,.6)}
+.p-props .logo{position:absolute;right:6%;bottom:8%;width:12%;aspect-ratio:1;border-radius:3px;background:var(--grad)}
+.p-props .clock{position:absolute;left:6%;bottom:9%;font:600 10px/1 var(--f-mono);color:#fff}
+.p-msg .bar{position:absolute;left:0;right:0;bottom:0;height:13%;background:var(--live)}
+.p-mask{--c:#e2e8f0;background:transparent;box-shadow:inset 0 0 0 9px rgba(226,232,240,.35)}
+.layer-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.layer-list button{width:100%;display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;background:transparent;border:0;border-left:3px solid var(--c);color:var(--text);padding:10px 12px;border-radius:0 10px 10px 0;cursor:pointer;font:inherit;transition:background .2s}
+.layer-list button:hover,.layer-list button[aria-pressed="true"]{background:var(--glass-2)}
+.layer-list .n{font:600 13px/1 var(--f-mono);color:var(--muted)}
+.layer-list b{font-weight:600;font-size:16px;display:block}
+.layer-list small{display:block;color:var(--muted);font-size:14px;line-height:1.4}
+@media (max-width:900px){.layers{grid-template-columns:1fr}.stack-stage{aspect-ratio:1/.75}}
+
+/* ---------- Para quem ---------- */
+.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.who .card .txt{padding:30px 28px}
+.who .size{font:600 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.who .kit{font:500 13px/1.6 var(--f-mono);color:var(--text);border-top:1px solid var(--line);padding-top:14px;margin-top:6px}
+@media (max-width:860px){.who{grid-template-columns:1fr}}
+
+/* ---------- Download ---------- */
+.dl{position:relative;border-radius:32px;padding:clamp(28px,5vw,64px);background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(59,130,246,.28),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border:1px solid var(--line-2);overflow:hidden}
+.dl .gridlines{opacity:.35}
+.dl-head{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:end;margin-bottom:34px;position:relative}
+.dl-head h2{font-size:clamp(40px,5.6vw,80px)}
+.ver{display:inline-flex;gap:10px;align-items:center;font:600 14px/1 var(--f-mono)}
+.ver b{padding:7px 11px;border-radius:999px;background:var(--grad-gold);color:var(--gold-ink)}
+.ver span{color:var(--muted)}
+.dl-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;position:relative}
+.dl-card{border-radius:var(--r);padding:28px;background:rgba(5,6,15,.6);border:1px solid var(--line-2);display:grid;gap:14px;align-content:start;position:relative}
+.dl-card.rec{border-color:transparent;background:linear-gradient(rgba(8,10,24,.92),rgba(8,10,24,.92)) padding-box,var(--grad) border-box;border:1.5px solid transparent;box-shadow:0 30px 90px -40px rgba(139,92,246,.8)}
+.dl-card .os{display:flex;align-items:center;gap:12px;font:700 26px/1 var(--f-display)}
+.dl-card .os svg{width:30px;height:30px}
+.dl-card .meta{font:500 13px/1.6 var(--f-mono);color:var(--muted)}
+.dl-card .rb{position:absolute;top:22px;right:22px;font:700 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:999px;background:var(--grad-gold);color:var(--gold-ink)}
+.dl-btns{display:flex;flex-wrap:wrap;gap:10px}
+.dl-note{font-size:14px;color:var(--muted);min-height:1.2em}
+.dl-tip{font-size:13.5px;color:var(--muted);border-top:1px dashed var(--line-2);padding-top:12px}
+@media (max-width:760px){.dl-cards{grid-template-columns:1fr}}
+.dl-more{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px;position:relative}
+@media (max-width:760px){.dl-more{grid-template-columns:1fr}}
+.dl-more .panel{padding:24px}
+.dl-more h3{font:600 17px/1.2 var(--f-body);letter-spacing:0;margin-bottom:12px}
+.dl-more ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px;display:grid;gap:6px}
+.old-list{list-style:none;padding:0!important}
+.old-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line);color:var(--text)}
+.old-list li:first-child{border-top:0}
+.old-list .v{font:600 14px/1 var(--f-mono)}
+.old-list .links{display:flex;gap:10px;font:500 13px/1 var(--f-mono)}
+.old-list .links a{color:var(--gold);text-decoration:none}
+
+/* ---------- Doação ---------- */
+.give{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.give .card{padding:26px;display:grid;gap:14px;align-content:start}
+.give .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.give .hd b{font:700 24px/1 var(--f-display)}
+.give .hd span{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.qr{width:150px;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#fff;padding:6px;justify-self:center;box-shadow:0 20px 50px -20px rgba(255,200,87,.55)}
+.qr img{width:100%;height:100%}
+.big-num{font:700 clamp(30px,3.4vw,40px)/1 var(--f-display);text-align:center;letter-spacing:.02em;padding-block:42px;font-variant-numeric:tabular-nums}
+.val{display:flex;align-items:center;justify-content:space-between;gap:10px;font:500 14px/1.4 var(--f-mono);padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.val span{color:var(--muted);font-family:var(--f-body)}
+.val code{user-select:all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.copy{font:600 13.5px/1 var(--f-body);color:var(--text);background:var(--glass-2);border:1px solid var(--line-2);border-radius:10px;padding:11px 12px;cursor:pointer;transition:background .2s}
+.copy:hover{background:rgba(255,200,87,.16)}
+.copy.ok{background:rgba(255,200,87,.22);border-color:var(--gold)}
+.give .btns{display:grid;gap:8px}
+@media (max-width:900px){.give{grid-template-columns:1fr}}
+
+/* ---------- FAQ ---------- */
+.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(24px,5vw,64px)}
+.faq details{border-top:1px solid var(--line);padding-block:20px}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer;font-weight:600;font-size:18.5px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:500 24px/1 var(--f-mono);color:var(--gold);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{color:var(--muted);margin-top:10px;max-width:64ch}
+@media (max-width:860px){.faq{grid-template-columns:1fr}}
+
+/* ---------- CTA final ---------- */
+.final{text-align:center;padding-block:clamp(90px,12vw,170px)}
+.final h2{font-size:clamp(46px,8vw,120px);letter-spacing:-.045em;line-height:.95}
+.final .ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:36px}
+
+footer{border-top:1px solid var(--line);padding-block:44px 60px;color:var(--muted);font-size:14.5px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:20px 40px;justify-content:space-between;align-items:flex-start}
+footer nav{display:flex;flex-wrap:wrap;gap:18px}
+footer a{text-decoration:none}
+footer a:hover{color:var(--text)}
+footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .hero-shot{transform:none}
+}
+</style>
+</head>
+<body>
+
+
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#top"><img src="img/icon.png" alt=""><span><i>Presenter</i> Church Flow</span></a>
+      <nav class="nav-links" aria-label="Secções">
+        <a href="#experimente">Experimente</a>
+        <a href="#destaques">Destaques</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#download">Download</a>
+        <a href="#doar">Apoiar</a>
+      </nav>
+      <a class="btn btn-primary" href="#download">Baixar grátis</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="gridlines" aria-hidden="true"></div>
+  <div class="wrap">
+    <h1>Projeção de igreja <span class="grad-text">em outro nível.</span></h1>
+    <p class="lede">Letras, Bíblia, vídeos, fundos animados, várias telas, palco com cifra, video mapping e transmissão. Num só programa, gratuito e completo para sempre.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" id="heroDl" href="#download">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
+        <span class="bs"><span id="heroDlLabel">Baixar para Windows</span><small id="heroDlMeta">Grátis · versão 0.1.0</small></span>
+      </a>
+      <a class="btn btn-glass" href="#experimente">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        Experimentar aqui
+      </a>
+    </div>
+    <div class="trust"><span>Grátis para sempre</span><span>Zero anúncios</span><span>Sem conta</span><span>Windows e Mac</span></div>
+
+    <div class="hero-stage">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-shot" id="heroShot">
+        <div class="frame"><div class="inner">
+          <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>Presenter Church Flow · Culto de Domingo</span></div>
+          <img src="img/interface.webp" alt="Janela principal do Presenter Church Flow com a programação do culto, os slides da música e a imagem ao vivo" width="1800" height="1012">
+        </div></div>
+        <div class="float f-live" aria-hidden="true"><span class="dot"></span>AO VIVO · Refrão 3/6</div>
+        <div class="float f-stage"><div class="f-cap"><b>Palco · cifra</b><span>para os músicos</span></div><img src="img/palco-cifra.webp" alt="Tela de palco com a letra e os acordes por cima" width="1600" height="900"></div>
+        <div class="float f-phone"><img src="img/remote.webp" alt="Remote no celular" width="780" height="1688"></div>
+        <div class="float f-proj"><div class="f-cap"><b>Projetor</b><span>1920×1080</span></div><img src="img/projecao.webp" alt="Projeção da letra sobre fundo animado Aurora" width="1600" height="900"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="mq-row" id="mq1"></div>
+  <div class="mq-row rev" id="mq2"></div>
+</div>
+
+<!-- ================= DEMO ================= -->
+<section class="sec" id="experimente" aria-labelledby="demoTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Experimente aqui mesmo</p>
+      <h2 id="demoTitle">Clique. <span class="grad-text">Está no ar.</span></h2>
+      <p class="lede">É assim que se opera no culto. Escolha uma parte da música, mude a transição e o fundo animado. A tela de palco ao lado mostra aos músicos a letra com a cifra.</p>
+    </div>
+    <div class="demo">
+      <div class="panel demo-main">
+        <div class="screen" id="demoScreen" role="img" aria-label="Projeção de exemplo com letra sobre fundo animado">
+          <canvas id="bgCanvas"></canvas>
+          <div class="lyr" id="lyrA"><span class="t"></span></div>
+          <div class="lyr" id="lyrB" style="opacity:0"><span class="t"></span></div>
+          <span class="onair">AO VIVO</span>
+          <span class="counter" id="counter">3/5</span>
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row" id="secRow"><span class="lbl">Slide</span></div>
+          <div class="ctrl-row"><span class="lbl">Transição</span><div class="seg" id="trRow"></div></div>
+          <div class="ctrl-row"><span class="lbl">Fundo</span><div class="seg" id="bgRow"></div></div>
+          <div class="ctrl-row"><span class="lbl">Tema</span><div class="seg" id="thRow"></div></div>
+          <p class="hint">Use também as teclas do programa: <kbd>1</kbd> <kbd>E</kbd> <kbd>R</kbd> <kbd>2</kbd> <kbd>P</kbd>, ou <kbd>→</kbd> para avançar.</p>
+        </div>
+      </div>
+      <div class="demo-side">
+        <div class="panel stagebox">
+          <div class="box-title"><b>Tela de palco</b><span>Com cifra</span></div>
+          <div class="monitor" aria-live="polite">
+            <div class="mon-top"><span>Luz Que Não Se Apaga</span><b id="monClock">--:--</b></div>
+            <div class="mon-sec" id="monSec">Refrão</div>
+            <div class="mon-lyr" id="monLyr"></div>
+          </div>
+        </div>
+        <div class="panel phonebox">
+          <div class="mini-phone"><img src="img/remote.webp" alt="" width="780" height="1688" loading="lazy"></div>
+          <p><b>O mesmo, no celular.</b> Aponte a câmera para o QR que o programa mostra e passe os slides do púlpito ou da mesa de som. Sem instalar nada.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROMESSA ================= -->
+<section class="sec promise" style="padding-top:0" aria-labelledby="promTitle">
+  <div class="wrap">
+    <div class="sec-head center">
+      <p class="eyebrow">A promessa</p>
+      <h2 id="promTitle">Tudo incluído. <span class="grad-text">Nada a pagar.</span></h2>
+      <p class="lede">Nada de versão Pro, período de teste ou recurso trancado. O mesmo instalador para a igreja de 30 pessoas e para o congresso de 3 mil.</p>
+    </div>
+    <div class="zeros">
+      <div class="zero rise"><span class="n grad-text">0</span><b>Custo</b><p>Hoje, amanhã e nas próximas versões.</p></div>
+      <div class="zero rise"><span class="n grad-text">0</span><b>Anúncios</b><p>Nem no programa, nem na projeção. Nada de marca d'água.</p></div>
+      <div class="zero rise"><span class="n grad-text">0</span><b>Cadastros</b><p>Instale e use. Os dados ficam no seu computador.</p></div>
+      <div class="zero rise"><span class="n grad-text">∞</span><b>Saídas e recursos</b><p>Quantas telas, temas, fundos e músicas quiser.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DESTAQUES ================= -->
+<section class="sec" id="destaques" style="padding-top:0" aria-labelledby="hlTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Destaques</p>
+      <h2 id="hlTitle">O que faz as igrejas <span class="grad-text">mudarem de programa.</span></h2>
+    </div>
+    <div class="bento">
+
+      <!-- 1. Pesquisa de músicas -->
+      <article class="card c-4 rise">
+        <div class="txt"><h3>Escreva o nome. A música chega pronta.</h3><p>Na maior parte das vezes a letra já vem dividida em Verso, Pré-Refrão, Refrão e Ponte, e com a cifra para os músicos. Escolha quantas linhas quer em cada slide e pronto.</p></div>
+        <div class="search-demo">
+          <div class="sd-bar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sd-q">Luz Que Não Se Apaga</span><span class="sd-ok">✓ letra · divisão · cifra</span></div>
+          <div class="sd-ctrl"><span class="lbl">Linhas por slide</span><div class="seg" id="lpsRow"></div></div>
+          <div class="sd-slides" id="sdSlides" aria-live="polite"></div>
+        </div>
+      </article>
+
+      <!-- 7. Bíblias -->
+      <article class="card c-2 rise">
+        <div class="txt"><h3>Todas as Bíblias que quiser</h3><p>Instale várias versões a partir de arquivos XML e troque com um clique. Busque por <kbd>Jo 3:16-18</kbd> ou por palavras.</p></div>
+        <div class="bibles">
+          <div class="bx"><b>XML</b><span>Zefania</span></div>
+          <div class="bx"><b>XML</b><span>OpenSong</span></div>
+          <div class="bx"><b>XML</b><span>OSIS</span></div>
+          <div class="bx"><b>XML</b><span>Beblia</span></div>
+          <div class="verse"><span class="vref">Salmos 23:1</span>O Senhor é o meu pastor; nada me faltará.</div>
+        </div>
+      </article>
+
+      <!-- 2. Blend, slices, mapping -->
+      <article class="card c-6 rise">
+        <div class="txt map-txt">
+          <h3>Blend, slices e video mapping. <span class="grad-text">Um conteúdo diferente em cada superfície.</span></h3>
+          <p>Junte projetores sem emendas, corte a imagem por várias telas ou painéis LED e projete em colunas, altar e paredes, cada um com a sua forma. A letra no centro, um vídeo nas colunas, a câmera numa lateral e o logo no altar, tudo ao mesmo tempo.</p>
+          <div class="tags"><span>Blend entre projetores</span><span>Slices / vídeo wall</span><span>Video mapping</span><span>Painel LED</span><span>Calibração por câmera</span><span>Cenas</span></div>
+        </div>
+        <div class="mapping big" aria-hidden="true">
+          <div class="beam"></div>
+          <div class="sf col1" data-n="Coluna 1 · vídeo"></div>
+          <div class="sf scr" data-n="Tela · letra">Brilha em mim, ó Deus<br>brilha em nós</div>
+          <div class="sf col2 camf" data-n="Coluna 2 · câmera"><span class="silh"></span></div>
+          <div class="sf altar logo" data-n="Altar · logo"><img src="img/icon.png" alt=""></div>
+          <div class="blendz"><span>blend</span></div>
+        </div>
+      </article>
+
+      <!-- 3. Apresentações -->
+      <article class="card c-3 rise">
+        <div class="txt"><h3>Apresentações que se destacam, em segundos</h3><p>Escolha um dos 10 modelos modernos e troque os textos. Animações, vidro, degradês e fundos animados como num programa de design. Também abre PDF e PowerPoint.</p></div>
+        <div class="shot"><img src="img/editor.webp" alt="Editor de apresentações com o slide Bem-vindos à nossa casa sobre fundo de bokeh dourado" width="1800" height="1012" loading="lazy"></div>
+      </article>
+
+      <!-- 6. Entradas -->
+      <article class="card c-3 rise">
+        <div class="txt"><h3>Câmeras em qualquer superfície</h3><p>Câmeras, placas HDMI e SDI, janelas e telas do computador e fontes NDI® podem ir para a tela inteira ou para uma única superfície do mapping.</p></div>
+        <div class="inputs" aria-hidden="true">
+          <div class="src-list"><span>Câmera 1</span><span>HDMI · placa</span><span>Janela · PowerPoint</span><span>NDI® · PTZ</span></div>
+          <svg class="arrow" viewBox="0 0 60 20"><path d="M2 10h50m-8-7 8 7-8 7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <div class="tilt"><div class="cam mini"><div class="silh"></div><span class="rec">CAM 1</span></div><b>Coluna 2</b></div>
+        </div>
+      </article>
+
+      <!-- 4. MIDI + Companion -->
+      <article class="card c-2 rise">
+        <div class="txt"><h3>Automação por MIDI e Companion</h3><p>As faixas do playback mandam o programa trocar de música e de slide. Um Stream Deck com o Companion vira uma mesa de projeção.</p></div>
+        <div class="deck" id="deck" aria-hidden="true"></div>
+        <p class="midi-line" aria-hidden="true"><span>Nota 60</span> → Refrão · <span>PC 5</span> → Item 5 da programação</p>
+      </article>
+
+      <!-- 5. NDI -->
+      <article class="card c-2 rise">
+        <div class="txt"><h3>NDI® nativo</h3><p>Envie qualquer saída pela rede, com transparência, e receba câmeras e programas NDI. Sem placas nem cabos extra.</p></div>
+        <svg class="ndi" viewBox="0 0 300 170" aria-hidden="true">
+          <g class="lines" fill="none" stroke-width="2">
+            <path d="M150 85 L48 30"/><path d="M150 85 L252 30"/><path d="M150 85 L48 140"/><path d="M150 85 L252 140"/>
+          </g>
+          <g font-family="Geist Mono, monospace" font-size="11" text-anchor="middle">
+            <rect x="104" y="66" width="92" height="38" rx="10" class="hub"/><text x="150" y="89" class="hubt">Presenter</text>
+            <rect x="8" y="16" width="80" height="28" rx="8" class="node"/><text x="48" y="34">vMix</text>
+            <rect x="212" y="16" width="80" height="28" rx="8" class="node"/><text x="252" y="34">OBS</text>
+            <rect x="8" y="126" width="80" height="28" rx="8" class="node"/><text x="48" y="144">Câmera PTZ</text>
+            <rect x="212" y="126" width="80" height="28" rx="8" class="node"/><text x="252" y="144">ATEM Mini</text>
+          </g>
+        </svg>
+      </article>
+
+      <!-- 8. Links na rede -->
+      <article class="card c-2 rise">
+        <div class="txt"><h3>Qualquer saída, num link</h3><p>Na mesma rede, cada saída abre num navegador: TV do saguão, tablet do músico, OBS, outro computador. Sem instalar nada.</p></div>
+        <ul class="links-l" aria-hidden="true">
+          <li><i>🖵</i><span>Projeção</span><code>/output/principal</code></li>
+          <li><i>♫</i><span>Palco com cifra</span><code>/stage/?chords=1</code></li>
+          <li><i>◉</i><span>OBS · terço inferior</span><code>/output/obs</code></li>
+          <li><i>▤</i><span>Celular</span><code>/remote</code></li>
+        </ul>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= HISTÓRIA ================= -->
+<section class="sec" id="recursos" style="padding-top:0" aria-labelledby="storyTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Um culto inteiro</p>
+      <h2 id="storyTitle">Do ensaio <span class="grad-text">ao amém.</span></h2>
+    </div>
+    <div class="story">
+      <div class="steps-col">
+        <div class="step" data-k="0">
+          <span class="num">01 · PREPARAR</span>
+          <h3>A programação pronta antes de começar.</h3>
+          <p>Escreva o nome da música e o programa traz a letra da internet, já separada em Verso, Refrão e Ponte, com a capa do álbum. Arraste músicas, versículos e vídeos para a ordem do culto e grave num arquivo que abre em qualquer computador.</p>
+          <img class="m-img" src="img/interface.webp" alt="" width="1800" height="1012" loading="lazy">
+        </div>
+        <div class="step" data-k="1">
+          <span class="num">02 · PROJETAR</span>
+          <h3>Um clique e está na tela.</h3>
+          <p>Transições suaves, fundos animados que nunca pixelizam e oito camadas independentes: troque a letra sem mexer no fundo, ponha o logo sem apagar o versículo.</p>
+          <img class="m-img" src="img/projecao.webp" alt="" width="1600" height="900" loading="lazy">
+        </div>
+        <div class="step" data-k="2">
+          <span class="num">03 · CONTROLAR</span>
+          <h3>Do púlpito, pelo celular.</h3>
+          <p>O pregador passa os próprios slides. A mesa de som pode mandar pela pedaleira MIDI ou pelo Companion. A equipe entra com PIN.</p>
+          <img class="m-img ph" src="img/remote.webp" alt="" width="780" height="1688" loading="lazy">
+        </div>
+        <div class="step" data-k="3">
+          <span class="num">04 · TRANSMITIR</span>
+          <h3>Letra por cima da câmera na live.</h3>
+          <p>Cole um link no OBS ou no vMix e o terço inferior aparece com fundo transparente. Também envia e recebe por NDI®, sem chroma key.</p>
+          <div class="m-img"><div class="cam"><div class="silh"></div><img src="img/obs.webp" alt="" width="1600" height="900" loading="lazy"><span class="rec">CAM 1 · LIVE</span></div></div>
+        </div>
+        <div class="step" data-k="4">
+          <span class="num">05 · AVISAR</span>
+          <h3>O berçário chama. O louvor continua.</h3>
+          <p>Rodapé rolante, faixa no topo ou chamada de berçário, por cima de tudo, sem interromper o que está no ar. Cronômetros para o pregador no palco.</p>
+          <img class="m-img" src="img/proj_alerta.webp" alt="" width="1600" height="900" loading="lazy">
+        </div>
+      </div>
+      <div class="sticky-col">
+        <div class="sticky" id="sticky" aria-hidden="true">
+          <div class="stk"><div class="dev"><img src="img/interface.webp" alt="" width="1800" height="1012"></div></div>
+          <div class="stk"><div class="dev"><img src="img/projecao.webp" alt="" width="1600" height="900"></div></div>
+          <div class="stk"><div class="dev phone"><img src="img/remote.webp" alt="" width="780" height="1688"></div></div>
+          <div class="stk"><div class="dev"><div class="cam"><div class="silh"></div><img src="img/obs.webp" alt="" width="1600" height="900"><span class="rec">CAM 1 · LIVE</span></div></div></div>
+          <div class="stk"><div class="dev"><img src="img/proj_alerta.webp" alt="" width="1600" height="900"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CIFRA ================= -->
+<section class="sec" style="padding-top:0" aria-labelledby="chTitle">
+  <div class="wrap chords-wrap">
+    <div class="tv rise"><img src="img/palco-cifra.webp" alt="Tela de palco: título da música, relógio, refrão com acordes e o verso seguinte" width="1600" height="900" loading="lazy"></div>
+    <div>
+      <div class="sec-head" style="margin-bottom:0">
+        <p class="eyebrow">Para quem está no palco</p>
+        <h2 id="chTitle">Os músicos <span class="grad-text">vão agradecer.</span></h2>
+        <p class="lede">A tela de retorno mostra o que vem a seguir, o relógio, o cronômetro do pregador e a cifra.</p>
+      </div>
+      <ul class="feat-list">
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span><b>Acorde na sílaba certa</b>Funciona com qualquer fonte e com o ajuste automático do tamanho.</span></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span><span><b>Mude o tom em segundos</b>Meio tom acima ou abaixo, e a cifra realinha com a letra.</span></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg></span><span><b>Tablets dos músicos</b>Cada um abre o link do palco no próprio tablet, com ou sem cifra.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TUDO INCLUÍDO ================= -->
+<section class="sec" style="padding-top:0" aria-labelledby="allTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">E tudo o resto</p>
+      <h2 id="allTitle">Tudo o que um culto pede.</h2>
+    </div>
+    <div class="all" id="allGrid"></div>
+  </div>
+</section>
+
+<!-- ================= CAMADAS ================= -->
+<section class="sec" style="padding-top:0" aria-labelledby="layTitle">
+  <div class="wrap layers">
+    <div class="stack-stage" id="stackStage" aria-hidden="true"><div class="stack" id="stack"></div></div>
+    <div>
+      <div class="sec-head" style="margin-bottom:24px">
+        <p class="eyebrow">Camadas, como nos grandes</p>
+        <h2 id="layTitle">Oito camadas. <span class="grad-text">Uma tecla cada.</span></h2>
+        <p class="lede">Passe o rato por cima e veja cada camada subir. <kbd>F1</kbd> limpa tudo de uma vez.</p>
+      </div>
+      <ul class="layer-list" id="layerList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PARA QUEM ================= -->
+<section class="sec" style="padding-top:0" aria-labelledby="whoTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Para quem é</p>
+      <h2 id="whoTitle">Da igreja de bairro <span class="grad-text">ao congresso.</span></h2>
+    </div>
+    <div class="who">
+      <article class="card rise"><div class="txt"><p class="size grad-text">Igreja pequena</p><h3>Um portátil e um projetor.</h3><p>O assistente inicial liga o projetor, instala a Bíblia e traz as primeiras músicas. Quem nunca operou projeção começa no mesmo dia.</p><p class="kit">1 computador · 1 projetor · celular como remote</p></div></article>
+      <article class="card rise"><div class="txt"><p class="size grad-text">Igreja grande</p><h3>Telão, palco e live ao mesmo tempo.</h3><p>Uma saída para o telão, outra para o retorno com cifra, outra para o OBS com terço inferior. Cada uma mostra as camadas que precisa.</p><p class="kit">Várias saídas · palco · OBS / vMix · MIDI</p></div></article>
+      <article class="card rise"><div class="txt"><p class="size grad-text">Eventos e conferências</p><h3>Telas grandes e fora do comum.</h3><p>Blend entre projetores com calibração por câmera, painel LED, video mapping e NDI para levar a imagem a toda a produção.</p><p class="kit">Multi-projetor · LED · mapping · NDI®</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOWNLOAD ================= -->
+<section class="sec" id="download" style="padding-top:0" aria-labelledby="dlTitle">
+  <div class="wrap">
+    <div class="dl">
+      <div class="gridlines" aria-hidden="true"></div>
+      <div class="dl-head">
+        <div class="sec-head" style="margin-bottom:0">
+          <p class="eyebrow">Download</p>
+          <h2 id="dlTitle">Instale hoje. <span class="grad-text">Use no domingo.</span></h2>
+        </div>
+        <p class="ver"><b id="dlVer">v0.1.0</b><span id="dlDate"></span></p>
+      </div>
+      <div class="dl-cards">
+        <div class="dl-card" id="cardWin">
+          <span class="rb" hidden>Para o seu computador</span>
+          <div class="os"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3zM11.6 4.3 21 3v8.5h-9.4zM3 12.5h7.5v7.1L3 18.5zM11.6 12.5H21V21l-9.4-1.3z"/></svg>Windows</div>
+          <p class="meta">Windows 10 e 11 · 64-bit · instalador .exe</p>
+          <div class="dl-btns">
+            <a class="btn btn-primary" id="dlWin" href="#download"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg><span>Baixar para Windows</span></a>
+          </div>
+          <p class="dl-note" id="noteWin" aria-live="polite"></p>
+          <p class="dl-tip">Se o Windows mostrar «O Windows protegeu o computador», clique em <b>Mais informações</b> e depois em <b>Executar mesmo assim</b>.</p>
+        </div>
+        <div class="dl-card" id="cardMac">
+          <span class="rb" hidden>Para o seu computador</span>
+          <div class="os"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.9-.8-3.1-.8c-1.6 0-3 .9-3.9 2.3-1.7 2.9-.4 7.1 1.2 9.4.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.4-1-2.3-3.7zM14.2 5.5c.6-.8 1.1-1.8 1-2.9-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.7-1.3z"/></svg>macOS</div>
+          <p class="meta">macOS 10.15 ou mais recente · .dmg</p>
+          <div class="dl-btns">
+            <a class="btn btn-primary" id="dlMacArm" href="#download"><span class="bs"><span>Apple Silicon</span><small>M1, M2, M3, M4</small></span></a>
+            <a class="btn btn-glass" id="dlMacIntel" href="#download"><span class="bs"><span>Intel</span><small>Macs até 2020</small></span></a>
+          </div>
+          <p class="dl-note" id="noteMac" aria-live="polite"></p>
+          <p class="dl-tip">Na primeira vez, clique com o botão direito na app e escolha <b>Abrir</b>. Se o Mac disser que está danificada, no Terminal: <code>xattr -cr "/Applications/Presenter Church Flow.app"</code></p>
+        </div>
+      </div>
+      <div class="dl-more">
+        <div class="panel"><h3>O que vem no programa</h3><ul id="notes"></ul></div>
+        <div class="panel"><h3>Versões anteriores</h3><ul class="old-list" id="oldList"></ul>
+          <p style="margin-top:14px;font-size:14px;color:var(--muted)">Para atualizar, instale por cima. As músicas, temas e configurações ficam em Documentos › Church Flow Dados e não se perdem.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOAÇÃO ================= -->
+<section class="sec" id="doar" style="padding-top:0" aria-labelledby="donTitle">
+  <div class="wrap">
+    <div class="sec-head center">
+      <p class="eyebrow">Doação voluntária</p>
+      <h2 id="donTitle">Gratuito para sempre. <span class="grad-text">Se quiser, ajude.</span></h2>
+      <p class="lede">O programa continua completo para quem doa e para quem não doa. As doações pagam horas de desenvolvimento, testes com projetores reais e novas versões.</p>
+    </div>
+    <div class="give">
+      <div class="card rise">
+        <div class="hd"><b>Pix</b><span><svg viewBox="0 0 28 20" width="21" height="15" aria-hidden="true"><rect width="28" height="20" rx="2" fill="#009c3b"/><path d="M14 2.6 25.4 10 14 17.4 2.6 10z" fill="#ffdf00"/><circle cx="14" cy="10" r="4.6" fill="#002776"/></svg>Brasil</span></div>
+        <div class="qr"><img src="img/qr-pix.svg" alt="QR code Pix para doação" width="150" height="150"></div>
+        <div class="val"><span>Chave (celular)</span><code>(82) 98888-1294</code></div>
+        <div class="btns"><button class="copy" type="button" data-copy="82988881294">Copiar chave</button><button class="copy" type="button" id="pixCopy">Copiar Pix copia e cola</button></div>
+      </div>
+      <div class="card rise">
+        <div class="hd"><b>MB WAY</b><span><svg viewBox="0 0 28 20" width="21" height="15" aria-hidden="true"><rect width="28" height="20" rx="2" fill="#da291c"/><path d="M2 0h9.2v20H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z" fill="#046a38"/><circle cx="11.2" cy="10" r="4.2" fill="none" stroke="#ffe900" stroke-width="1.3"/></svg>Portugal</span></div>
+        <div class="big-num grad-text">916 091 294</div>
+        <p style="color:var(--muted);font-size:14.5px;text-align:center">Na app MB WAY ou no homebanking, escolha «Enviar dinheiro» para este número.</p>
+        <div class="btns"><button class="copy" type="button" data-copy="916091294">Copiar número</button></div>
+      </div>
+      <div class="card rise">
+        <div class="hd"><b>PayPal</b><span>Qualquer país</span></div>
+        <div class="qr"><img src="img/qr-paypal.svg" alt="QR code do PayPal para doação" width="150" height="150"></div>
+        <div class="val"><span>Link</span><code>paypal.me/LaelPereira</code></div>
+        <div class="btns"><a class="btn btn-primary" style="justify-content:center" href="https://paypal.me/LaelPereira" target="_blank" rel="noopener">Abrir o PayPal</a><button class="copy" type="button" data-copy="https://paypal.me/LaelPereira">Copiar link</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec" id="faq" style="padding-top:0" aria-labelledby="faqTitle">
+  <div class="wrap faq">
+    <div class="sec-head">
+      <p class="eyebrow">Perguntas</p>
+      <h2 id="faqTitle">Antes de instalar.</h2>
+    </div>
+    <div>
+      <details name="faq" open><summary>É mesmo gratuito?</summary><p>Sim. Não há plano pago, período de teste, marca d'água nem anúncios. Todos os recursos vêm no mesmo instalador, e o instalador original pode ser partilhado com outras igrejas.</p></details>
+      <details name="faq"><summary>Preciso de internet durante o culto?</summary><p>Não. O programa roda no seu computador. A internet só é usada para procurar letras, baixar vídeos grátis e verificar atualizações.</p></details>
+      <details name="faq"><summary>Funciona no Mac?</summary><p>Sim, nos Macs com chip Apple (M1 a M4) e nos Macs Intel, a partir do macOS 10.15. Na primeira vez, clique com o botão direito na app e escolha Abrir.</p></details>
+      <details name="faq"><summary>Consigo trazer as músicas do programa que uso hoje?</summary><p>Sim. Importa do EasyWorship 6 e 7, ProPresenter 4 a 7, Holyrics, OpenLP, FreeShow, OpenSong, ChordPro, CCLI SongSelect, PowerPoint e texto simples. Antes de importar, você vê a lista e as músicas repetidas.</p></details>
+      <details name="faq"><summary>E se eu me perder no programa?</summary><p>Carregue em ? e escreva a dúvida com as suas palavras. A Ajuda mostra a melhor resposta e leva-o ao sítio certo. O assistente inicial também pode ser aberto outra vez a qualquer momento.</p></details>
+      <details name="faq"><summary>Os meus dados estão seguros?</summary><p>Ficam na pasta Documentos › Church Flow Dados. Há uma cópia de segurança automática por dia, o que se apaga fica 15 dias no Lixo e quase tudo se desfaz com Ctrl+Z. O remote pode ter PIN.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final" aria-labelledby="finTitle">
+  <div class="wrap">
+    <h2 id="finTitle">O próximo culto <span class="grad-text">pode ser assim.</span></h2>
+    <div class="ctas">
+      <a class="btn btn-primary" href="#download">Baixar grátis</a>
+      <a class="btn btn-glass" href="#experimente">Experimentar outra vez</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/icon.png" alt=""><span><i>Presenter</i> Church Flow</span></a>
+    <nav aria-label="Rodapé"><a href="#experimente">Experimente</a><a href="#destaques">Destaques</a><a href="#recursos">Recursos</a><a href="#download">Download</a><a href="#doar">Apoiar</a><a href="#faq">Perguntas</a></nav>
+    <p class="legal">© 2026 Lael Pereira. Gratuito para igrejas, ministérios e eventos, sem anúncios. Pode ser instalado e usado livremente e o instalador original pode ser partilhado sem custo; o código não é aberto. NDI® é uma marca registrada da Vizrt NDI AB. Os nomes de outros programas indicam apenas compatibilidade de importação.</p>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   CONFIGURAÇÃO
+   Os instaladores ficam nas Releases do GitHub (repo abaixo): a página mostra sozinha a versão mais
+   recente e as anteriores. A lista "releases" só é usada se o GitHub não responder.
+   ===================================================================== */
+const CONFIG = {
+  // Repositório do GitHub com as Releases (instaladores). A página lê as versões de lá sozinha.
+  repo: "laelpereira-ui/presenter-church-flow",
+  releases: [
+    { version: "0.1.0", date: "2026-10-20",
+      win: "downloads/Presenter-Church-Flow-Setup-0.1.0.exe",
+      macArm: "downloads/Presenter-Church-Flow-0.1.0-mac-arm64.dmg",
+      macIntel: "downloads/Presenter-Church-Flow-0.1.0-mac-x64.dmg",
+      notes: [
+        "Cifra na tela de palco, com mudança de tom",
+        "Video mapping com superfícies, painel LED, canais e cenas",
+        "Assistente de cenário e calibração com câmera",
+        "Temas editáveis na própria imagem e terço inferior automático",
+        "Ajuda com pesquisa e assistente inicial em 7 passos",
+        "MIDI com playback, remote com QR e atalhos configuráveis",
+        "Versão para Mac (Apple Silicon e Intel)"
+      ] }
+  ]
+};
+const PIX = "00020126360014br.gov.bcb.pix0114+55829888812945204000053039865802BR5912Lael Pereira6006MACEIO62070503***6304038A";
+
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------------- Hero: tela que se endireita ao rolar + parallax ---------------- */
+(function () {
+  const shot = $("#heroShot"); if (!shot) return;
+  if (!reduced) {
+    const upd = () => {
+      const r = shot.getBoundingClientRect(), vh = innerHeight;
+      const p = Math.min(1, Math.max(0, (vh - r.top) / (vh * .9)));
+      shot.style.setProperty("--tilt", (22 * (1 - p)).toFixed(2) + "deg");
+      shot.style.setProperty("--sc", (.9 + .1 * p).toFixed(3));
+    };
+    addEventListener("scroll", upd, { passive: true }); addEventListener("resize", upd); upd();
+    const floats = shot.querySelectorAll(".float");
+    addEventListener("pointermove", e => {
+      const x = (e.clientX / innerWidth - .5), y = (e.clientY / innerHeight - .5);
+      floats.forEach(f => { f.style.setProperty("--px", x.toFixed(3)); f.style.setProperty("--py", y.toFixed(3)); });
+    }, { passive: true });
+  } else { shot.style.setProperty("--tilt", "0deg"); shot.style.setProperty("--sc", "1"); }
+})();
+
+/* ---------------- Marquee ---------------- */
+(function () {
+  const A = [["Letras da internet", "#22d3ee"], ["Bíblia em segundos", "#3b82f6"], ["Cifra no palco", "#ffc857"], ["Video mapping", "#8b5cf6"], ["Painel LED", "#22d3ee"], ["Fundos animados", "#ffc857"], ["Remote no celular", "#ec4899"], ["OBS e vMix", "#8b5cf6"], ["NDI®", "#22d3ee"]];
+  const B = [["Blend entre projetores", "#8b5cf6"], ["Calibração por câmera", "#22d3ee"], ["Apresentações tipo PowerPoint", "#ffc857"], ["Alertas de berçário", "#3b82f6"], ["Cronômetros", "#8b5cf6"], ["MIDI e Companion", "#22d3ee"], ["8 camadas", "#ffc857"], ["Importa de outros programas", "#3b82f6"], ["Windows e Mac", "#8b5cf6"]];
+  const fill = (el, arr) => { const html = arr.map(([t, c]) => `<span style="--c:${c}"><i></i>${t}</span>`).join(""); el.innerHTML = html + html; };
+  fill($("#mq1"), A); fill($("#mq2"), B);
+})();
+
+/* ---------------- Demo interativa ---------------- */
+const SONG = [
+  { key: "1", name: "Verso 1", c: "#3b82f6", lines: [["Quando a noite parece não ter fim", [[0, "G"], [21, "D/F#"]]], ["Tua voz me encontra e chama por mim", [[0, "Em"], [21, "C"]]]] },
+  { key: "E", name: "Pré-Refrão", c: "#f97316", lines: [["Não há escuridão", [[0, "Am7"], [13, "C"]]], ["Que resista ao Teu clarão", [[0, "Am7"], [13, "D4"], [17, "D"]]]] },
+  { key: "R", name: "Refrão", c: "#ef4444", lines: [["És a luz que não se apaga", [[0, "G"], [13, "D/F#"]]], ["És a chama que não falha", [[0, "Em"], [13, "C"]]], ["Brilha em mim, ó Deus, brilha em nós", [[0, "G"], [12, "D/F#"], [24, "Em"]]]] },
+  { key: "2", name: "Verso 2", c: "#14b8a6", lines: [["Cada passo que eu dou é graça Tua", [[0, "G"], [21, "D/F#"]]], ["Mesmo em vales Tua mão continua", [[0, "Em"], [21, "C"]]]] },
+  { key: "P", name: "Ponte", c: "#a855f7", lines: [["Levanta-te e resplandece", [[0, "C"], [11, "G/B"]]], ["A glória do Senhor aparece", [[0, "Am7"], [11, "D"]]]] }
+];
+const TRANS = [["Dissolver", "fadeIn", "fadeOut"], ["Zoom", "zoomIn", "zoomOut"], ["Deslizar", "slideIn", "slideOut"], ["Desfoque", "blurIn", "blurOut"], ["Virar 3D", "flipIn", "flipOut"], ["Cortina", "wipeIn", "wipeOut"]];
+const BGS = [["Aurora", "aurora"], ["Bokeh", "bokeh"], ["Ondas", "waves"], ["Estrelas", "stars"]];
+let cur = -1, tr = 0, bgMode = "aurora", auto = !reduced;
+const scr = $("#demoScreen");
+let front = $("#lyrA"), back = $("#lyrB");
+function seg(el, items, onPick, sel) {
+  return items.map((it, i) => { const b = document.createElement("button"); b.type = "button"; b.textContent = it[0]; b.setAttribute("aria-pressed", i === sel ? "true" : "false");
+    b.addEventListener("click", () => { [...el.children].forEach(x => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); onPick(i); }); el.appendChild(b); return b; });
+}
+const secRow = $("#secRow");
+const chips = SONG.map((s, i) => { const b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.style.setProperty("--c", s.c); b.innerHTML = `<kbd>${s.key}</kbd>${s.name}`; b.setAttribute("aria-pressed", "false"); b.addEventListener("click", () => { auto = false; go(i); }); secRow.appendChild(b); return b; });
+seg($("#trRow"), TRANS, i => { tr = i; auto = false; go((cur + 1) % SONG.length, true); }, 0);
+seg($("#bgRow"), BGS, i => { bgMode = BGS[i][1]; auto = false; }, 0);
+seg($("#thRow"), [["Projeção"], ["Terço inferior"]], i => { scr.classList.toggle("lower", i === 1); auto = false; }, 0);
+function go(i, force) {
+  if (i === cur && !force) return; cur = i;
+  chips.forEach((c, k) => c.setAttribute("aria-pressed", k === i ? "true" : "false"));
+  const [, tin, tout] = TRANS[tr];
+  back.querySelector(".t").textContent = SONG[i].lines.map(l => l[0]).join("\n");
+  [front, back].forEach(el => { el.classList.remove("in", "out"); el.style.removeProperty("opacity"); });
+  void back.offsetWidth;
+  back.style.setProperty("--tin", tin); front.style.setProperty("--tout", tout);
+  back.style.zIndex = 2; front.style.zIndex = 1;
+  back.classList.add("in"); front.classList.add("out");
+  [front, back] = [back, front];
+  $("#counter").textContent = (i + 1) + "/" + SONG.length;
+  renderMonitor(i);
+}
+function renderMonitor(i) {
+  const s = SONG[i], n = SONG[(i + 1) % SONG.length];
+  $("#monSec").textContent = s.name;
+  $("#monLyr").innerHTML = s.lines.map(([txt, chords]) => {
+    let out = "", pos = 0;
+    chords.forEach(([at, c], k) => { const end = k + 1 < chords.length ? chords[k + 1][0] : txt.length; if (at > pos) out += esc(txt.slice(pos, at)); out += `<span class="cw"><i>${esc(c)}</i>${esc(txt.slice(at, end))}</span>`; pos = end; });
+    return `<div class="ln">${out}</div>`;
+  }).join("");
+}
+go(2, true);
+(function loop() { setTimeout(() => { if (auto) go((cur + 1) % SONG.length); loop(); }, 3800); })();
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || /input|textarea/i.test(e.target.tagName)) return;
+  const r = $("#experimente").getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+  if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); auto = false; go((cur + 1) % SONG.length); return; }
+  if (e.key === "ArrowLeft") { auto = false; go((cur + SONG.length - 1) % SONG.length); return; }
+  const i = SONG.findIndex(s => s.key.toLowerCase() === e.key.toLowerCase()); if (i >= 0) { auto = false; go(i); }
+});
+setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); }, 1000);
+
+/* fundos animados desenhados em tempo real */
+(function () {
+  const cv = $("#bgCanvas"), ctx = cv.getContext("2d");
+  let W = 0, H = 0, visible = true; const dpr = Math.min(devicePixelRatio || 1, 2);
+  const P = ["#22d3ee", "#3b82f6", "#8b5cf6", "#ec4899"];
+  const blobs = [...P, "#ffc857"].map((c, i) => ({ c, ax: .26 + i * .11, ay: .25 + (i % 2) * .22, s: .13 + i * .035, p: i * 1.7 }));
+  const bok = Array.from({ length: 34 }, () => ({ x: Math.random(), y: Math.random(), r: .02 + Math.random() * .07, v: .0004 + Math.random() * .0009, c: P[(Math.random() * 4) | 0], o: .15 + Math.random() * .35 }));
+  const stars = Array.from({ length: 160 }, () => ({ x: Math.random(), y: Math.random(), r: .3 + Math.random() * 1.3, p: Math.random() * 6.28 }));
+  function size() { const r = cv.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function rg(x, y, r, c, a) { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, c + Math.round(a * 255).toString(16).padStart(2, "0")); g.addColorStop(1, c + "00"); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); }
+  function frame(t) {
+    t = (t || 0) / 1000;
+    ctx.globalCompositeOperation = "source-over"; ctx.fillStyle = "#050818"; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "lighter";
+    if (bgMode === "aurora") {
+      blobs.forEach(b => rg(W * (b.ax + Math.sin(t * b.s + b.p) * .28), H * (b.ay + Math.cos(t * b.s * 1.3 + b.p) * .3), Math.max(W, H) * .55, b.c, .42));
+      for (let k = 0; k < 3; k++) { ctx.beginPath(); for (let x = 0; x <= W; x += 8) { const y = H * (.45 + k * .1) + Math.sin(x / W * 5 + t * .6 + k) * H * .08; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = P[k + 1] + "55"; ctx.lineWidth = H * .07; ctx.filter = "blur(18px)"; ctx.stroke(); ctx.filter = "none"; }
+    } else if (bgMode === "bokeh") {
+      rg(W * .5, H * .6, W * .7, "#3b82f6", .25);
+      bok.forEach(b => { b.y -= b.v; if (b.y < -.1) { b.y = 1.1; b.x = Math.random(); } rg(b.x * W + Math.sin(t * .4 + b.y * 8) * 14, b.y * H, b.r * W, b.c, b.o); });
+    } else if (bgMode === "waves") {
+      ctx.globalCompositeOperation = "source-over";
+      rg(W * .5, H * .2, W * .6, "#8b5cf6", .25);
+      for (let k = 0; k < 6; k++) {
+        const g = ctx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, P[k % 4] + "55"); g.addColorStop(1, P[(k + 2) % 4] + "55");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, H);
+        for (let x = 0; x <= W; x += 6) ctx.lineTo(x, H * (.38 + k * .09) + Math.sin(x / W * (3 + k * .6) + t * (.5 + k * .12) + k) * H * .07);
+        ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+      }
+    } else {
+      rg(W * .3, H * .3, W * .5, "#8b5cf6", .32); rg(W * .75, H * .65, W * .45, "#22d3ee", .25); rg(W * .55, H * .4, W * .35, "#ec4899", .18);
+      stars.forEach(s => { ctx.fillStyle = `rgba(255,255,255,${.35 + .65 * Math.abs(Math.sin(t * 1.4 + s.p))})`; ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, 6.29); ctx.fill(); });
+    }
+    ctx.globalCompositeOperation = "source-over";
+    const v = ctx.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, W * .75); v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.45)"); ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+    if (!reduced && visible) requestAnimationFrame(frame);
+  }
+  size(); frame(0);
+  addEventListener("resize", () => { size(); if (reduced) frame(0); });
+  new IntersectionObserver(es => { const was = visible; visible = es[0].isIntersecting; if (visible && !was && !reduced) requestAnimationFrame(frame); }).observe(cv);
+  if (reduced) document.querySelectorAll("#bgRow button").forEach(b => b.addEventListener("click", () => setTimeout(() => frame(0))));
+})();
+
+
+/* ---------------- Destaques: linhas por slide ---------------- */
+(function () {
+  const SEC = [["Verso 1", "#3b82f6", ["Quando a noite parece não ter fim", "Tua voz me encontra e chama por mim", "Sobre o caos Tu dizes: haja luz", "E o meu coração desperta em Ti, Jesus"]],
+               ["Pré-Refrão", "#f97316", ["Não há escuridão", "Que resista ao Teu clarão"]],
+               ["Refrão", "#ef4444", ["És a luz que não se apaga", "És a chama que não falha", "Brilha em mim, ó Deus, brilha em nós", "Até que o mundo ouça a Tua voz"]]];
+  const box = $("#sdSlides"); if (!box) return;
+  const draw = n => {
+    let html = "", k = 0;
+    SEC.forEach(([name, c, lines]) => { for (let i = 0; i < lines.length; i += n) { k++; html += `<div class="sl" style="--c:${c};animation-delay:${k * 35}ms"><div class="sh"><span>${name}</span><span>${k}</span></div><div class="sb">${esc(lines.slice(i, i + n).join("\n"))}</div></div>`; } });
+    box.innerHTML = html;
+  };
+  seg($("#lpsRow"), [["1"], ["2"], ["4"]], i => draw([1, 2, 4][i]), 1);
+  draw(2);
+})();
+
+/* ---------------- Destaques: botões do Companion ---------------- */
+(function () {
+  const el = $("#deck"); if (!el) return;
+  const K = ["◀ Anterior", "Próximo ▶", "Verso 1", "Refrão", "Ponte", "Limpar tudo", "Preto", "Logo"];
+  el.innerHTML = K.map(k => `<span>${k}</span>`).join("");
+  if (reduced) return;
+  const seq = [1, 3, 1, 4, 1, 5, 7, 6]; let i = 0;
+  setInterval(() => { const ks = el.children; [...ks].forEach(x => x.classList.remove("hit")); ks[seq[i++ % seq.length]].classList.add("hit"); }, 1100);
+})();
+
+/* ---------------- Painel LED ---------------- */
+(function () { const el = $("#led"); if (!el) return; let h = ""; for (let r = 0; r < 5; r++) for (let c = 0; c < 12; c++) h += `<i style="--k:${c + r * 3};--h:${Math.round(c / 11 * 100)}"></i>`; el.innerHTML = h; })();
+
+/* ---------------- História: imagem fixa troca com o passo ---------------- */
+(function () {
+  const steps = [...document.querySelectorAll(".step")], stk = [...document.querySelectorAll(".stk")];
+  const set = k => { steps.forEach((s, i) => s.classList.toggle("on", i === k)); stk.forEach((s, i) => s.classList.toggle("on", i === k)); };
+  // o passo ativo é o que está à altura do centro da imagem fixa (calculado a cada scroll, sem depender de observers)
+  const sticky = document.getElementById("sticky");
+  let last = -1, raf = 0;
+  const pick = () => {
+    raf = 0;
+    const sr = sticky.getBoundingClientRect();
+    const line = sr.height ? sr.top + sr.height / 2 : innerHeight / 2;
+    let best = 0, bestD = Infinity;
+    steps.forEach((st, i) => {
+      const r = st.getBoundingClientRect();
+      const d = line < r.top ? r.top - line : line > r.bottom ? line - r.bottom : 0;
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    if (best !== last) { last = best; set(best); }
+  };
+  const req = () => { if (!raf) raf = requestAnimationFrame(pick); };
+  addEventListener("scroll", req, { passive: true }); addEventListener("resize", req);
+  document.addEventListener("scroll", req, { passive: true, capture: true });
+  pick();
+})();
+
+/* ---------------- Tudo incluído ---------------- */
+(function () {
+  const I = {
+    book: '<path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 8h6M8 12h6"/>',
+    slides: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    bg: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18"/>',
+    bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/>',
+    timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
+    cam: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
+    import: '<path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/>',
+    font: '<path d="M4 20 10 4h4l6 16M7 14h10"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+    shield: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+    undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+    upd: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5v.01"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'
+  };
+  const F = [
+    ["help", "Ajuda que entende", "Escreva a dúvida como fala. A melhor resposta aparece com um botão que leva ao sítio certo, sem internet."],
+    ["slides", "Temas na própria imagem", "Arraste a caixa do texto, use vidro, imagens e barra de cor. O terço inferior troca sozinho."],
+    ["bg", "50+ fundos animados", "Nuvens, aurora, chuva, luzes de palco. E vídeos grátis sem direitos de autor."],
+    ["bell", "Alertas", "Rolante, faixa, destaque ao centro ou berçário, em cima ou em baixo."],
+    ["timer", "Cronômetros", "Regressivo, até uma hora ou progressivo. Na tela ou só no palco."],
+    ["compass", "Começa em 2 minutos", "Um assistente liga o projetor, instala a Bíblia e traz as primeiras músicas na primeira vez."],
+    ["import", "Traz as suas músicas", "EasyWorship, ProPresenter, Holyrics, OpenLP, FreeShow, ChordPro e mais."],
+    ["font", "27 fontes incluídas", "E guarda uma cópia das fontes do computador para abrir igual noutro PC."],
+    ["globe", "3 idiomas", "Português, English e Español na interface."],
+    ["shield", "Seguro", "PIN no remote, arquivos verificados ao abrir e aviso se o disco falhar."],
+    ["undo", "Tem volta", "Ctrl+Z em quase tudo, Lixo de 15 dias e cópia automática diária."],
+    ["upd", "Atualiza sem susto", "A versão nova só instala quando fechar o programa. Nunca no meio do culto."]
+  ];
+  $("#allGrid").innerHTML = F.map(([ic, t, d]) => `<article class="card rise"><div class="txt"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[ic]}</svg></span><h4>${t}</h4><p>${d}</p></div></article>`).join("");
+})();
+
+/* brilho que segue o rato nos cartões */
+document.addEventListener("pointermove", e => {
+  const c = e.target.closest && e.target.closest(".card"); if (!c) return;
+  const r = c.getBoundingClientRect(); c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
+}, { passive: true });
+
+/* ---------------- Camadas ---------------- */
+(function () {
+  const L = [
+    { n: "8", cls: "p-mask", name: "Máscara", key: "", d: "Corta partes da projeção. Sempre por cima de tudo.", c: "#e2e8f0" },
+    { n: "7", cls: "p-msg", c: "#ef4444", name: "Mensagens", key: "F7", d: "Alertas, berçário e cronômetros.", inner: '<div class="bar"></div>' },
+    { n: "6", cls: "p-props", c: "#22c55e", name: "Adereços", key: "F6", d: "Logo, relógio, GC, vídeo ou página web.", inner: '<div class="logo"></div><div class="clock">10:42</div>' },
+    { n: "5", cls: "p-ann", c: "#a855f7", name: "Anúncios", key: "F5", d: "Fila de avisos que roda sozinha.", inner: '<div class="cardx"></div>' },
+    { n: "4", cls: "p-slide", c: "#eab308", name: "Slide", key: "F4", d: "Letras, Bíblia e textos.", inner: '<div class="txt"><i style="width:100%"></i><i style="width:80%;margin-inline:auto"></i><i style="width:90%;margin-inline:auto"></i></div>' },
+    { n: "3", cls: "p-media", c: "#3b82f6", name: "Mídia", key: "F3", d: "Fundos animados, imagens e vídeos." },
+    { n: "2", cls: "p-input", c: "#14b8a6", name: "Entrada de vídeo", key: "F2", d: "Câmeras, captura, janelas e NDI®." },
+    { n: "1", cls: "p-color", c: "#64748b", name: "Cor da tela", key: "", d: "Preto, transparente para o OBS ou chroma key." }
+  ];
+  const stack = $("#stack"), list = $("#layerList"), stage = $("#stackStage"), planes = [], btns = [];
+  L.slice().reverse().forEach((l, i) => { const p = document.createElement("div"); p.className = "plane " + l.cls; p.style.setProperty("--i", i); p.style.setProperty("--c", l.c); p.innerHTML = (l.inner || "") + `<span class="tag">${l.key ? l.key + " · " : ""}${l.name.toUpperCase()}</span>`; stack.appendChild(p); planes[L.length - 1 - i] = p; });
+  L.forEach((l, i) => { const li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.style.setProperty("--c", l.c); b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `<span class="n">${l.n}</span><span><b>${l.name}</b><small>${l.d}</small></span>${l.key ? `<kbd>${l.key}</kbd>` : ""}`;
+    const on = () => { btns.forEach(x => x.setAttribute("aria-pressed", "false")); planes.forEach(x => x.classList.remove("on")); b.setAttribute("aria-pressed", "true"); planes[i].classList.add("on"); stage.classList.add("open"); };
+    b.addEventListener("mouseenter", on); b.addEventListener("focus", on); b.addEventListener("click", on); li.appendChild(b); list.appendChild(li); btns.push(b); });
+  btns[4].click();
+})();
+
+/* ---------------- Download ---------------- */
+const os = (() => { const p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent; return /mac|iphone|ipad/i.test(p) ? "mac" : "win"; })();
+const fmtDate = d => { try { return new Date(d + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" }); } catch { return d; } };
+async function exists(url) { if (!url) return false; try { const r = await fetch(url, { method: "HEAD", cache: "no-store" }); return r.ok; } catch { return false; } }
+async function githubReleases() {
+  if (!CONFIG.repo) return null;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${CONFIG.repo}/releases?per_page=30`, { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) return null;
+    const list = (await r.json()).filter(x => !x.draft && !x.prerelease);
+    const out = list.map(x => {
+      const a = (x.assets || []).filter(f => !/blockmap|\.yml$/i.test(f.name));
+      const pick = re => (a.find(f => re.test(f.name)) || {}).browser_download_url || null;
+      const notes = (x.body || "").split(/\r?\n/).map(l => l.replace(/^\s*[-*•]\s*/, "").trim()).filter(l => l && !/^#/.test(l)).slice(0, 8);
+      return { version: x.tag_name.replace(/^v/i, ""), date: (x.published_at || "").slice(0, 10), win: pick(/\.exe$/i), macArm: pick(/arm64\.dmg$/i), macIntel: pick(/x64\.dmg$/i), notes, remote: true };
+    }).filter(x => x.win || x.macArm || x.macIntel);
+    return out.length ? out : null;
+  } catch { return null; }
+}
+async function setupDownloads() {
+  const gh = await githubReleases();
+  const rel = gh || CONFIG.releases, L = rel[0];
+  if (gh && !L.notes.length) L.notes = CONFIG.releases[0].notes;
+  $("#dlVer").textContent = "v" + L.version; $("#dlDate").textContent = L.date ? fmtDate(L.date) : "";
+  $("#heroDlMeta").textContent = "Grátis · versão " + L.version;
+  $("#notes").innerHTML = L.notes.map(n => `<li>${esc(n)}</li>`).join("");
+  $("#oldList").innerHTML = rel.length > 1 ? rel.slice(1).map(r => `<li><span class="v">v${esc(r.version)}</span><span style="color:var(--muted);font-size:14px">${r.date ? fmtDate(r.date) : ""}</span><span class="links">${r.win ? `<a href="${esc(r.win)}">Windows</a>` : ""}${r.macArm ? `<a href="${esc(r.macArm)}">Mac M</a>` : ""}${r.macIntel ? `<a href="${esc(r.macIntel)}">Mac Intel</a>` : ""}</span></li>`).join("") : `<li style="display:block;color:var(--muted);font-size:15px">Esta é a primeira versão. As anteriores aparecem aqui quando sair a próxima.</li>`;
+  // links do GitHub já vêm confirmados pela lista de Releases; arquivos locais (pasta downloads) são verificados
+  const ok = u => !u ? Promise.resolve(false) : /^https?:/i.test(u) ? Promise.resolve(true) : exists(u);
+  const [w, ma, mi] = await Promise.all([ok(L.win), ok(L.macArm), ok(L.macIntel)]);
+  const wire = (btn, url, good, note, msg) => { if (good) { btn.href = url; btn.removeAttribute("aria-disabled"); if (!/^https?:/i.test(url)) btn.setAttribute("download", ""); } else { btn.setAttribute("aria-disabled", "true"); btn.removeAttribute("href"); if (msg) note.textContent = msg; } };
+  wire($("#dlWin"), L.win, w, $("#noteWin"), "O instalador para Windows fica disponível aqui em breve.");
+  wire($("#dlMacArm"), L.macArm, ma, $("#noteMac"), "");
+  wire($("#dlMacIntel"), L.macIntel, mi, $("#noteMac"), "");
+  if (!ma && !mi) $("#noteMac").textContent = "Os instaladores para Mac ficam disponíveis aqui em breve.";
+  const mac = os === "mac", recId = mac && (ma || mi) ? "cardMac" : (mac ? "cardMac" : "cardWin");
+  $("#" + recId).classList.add("rec"); $("#" + recId).querySelector(".rb").hidden = false;
+  const hero = $("#heroDl"), lbl = $("#heroDlLabel");
+  if (mac) { lbl.textContent = "Baixar para Mac"; hero.href = "#download"; }
+  else { lbl.textContent = "Baixar para Windows"; if (w) { hero.href = L.win; if (!/^https?:/i.test(L.win)) hero.setAttribute("download", ""); } else hero.href = "#download"; }
+}
+setupDownloads();
+
+/* ---------------- Perguntas: abrir uma fecha as outras ---------------- */
+document.querySelectorAll(".faq details").forEach(d => d.addEventListener("toggle", () => {
+  if (d.open) document.querySelectorAll(".faq details").forEach(o => { if (o !== d) o.open = false; });
+}));
+
+/* ---------------- Copiar (doação) ---------------- */
+document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
+  const val = b.id === "pixCopy" ? PIX : b.dataset.copy, old = b.textContent;
+  const done = t => { b.textContent = t; b.classList.add("ok"); setTimeout(() => { b.textContent = old; b.classList.remove("ok"); }, 1800); };
+  (navigator.clipboard ? navigator.clipboard.writeText(val) : Promise.reject()).then(() => done("Copiado ✓")).catch(() => {
+    const ta = document.createElement("textarea"); ta.value = val; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch { } ta.remove(); done(ok ? "Copiado ✓" : val);
+  });
+}));
+</script>
+
+</body>
+</html>
