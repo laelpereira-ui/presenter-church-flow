@@ -1275,8 +1275,8 @@ document.addEventListener("pointermove", e => {
   let q = 0;
   const upd = () => { q = 0;
     const m = main.getBoundingClientRect().top, b = bar.getBoundingClientRect(), bot = b.bottom;
-    if (m >= bot) { main.classList.remove("fadetop"); return; }
-    main.style.setProperty("--ft0", Math.round(-m) + "px"); main.style.setProperty("--ft1", Math.round(bot - m) + "px"); main.classList.add("fadetop"); };
+    if (m >= bot + 16) { main.classList.remove("fadetop"); return; }
+    main.style.setProperty("--ft0", Math.round(b.top - m) + "px"); main.style.setProperty("--ft1", Math.round(bot + 16 - m) + "px"); main.classList.add("fadetop"); };
   const req = () => { if (!q) q = requestAnimationFrame(upd); };
   addEventListener("scroll", req, { passive: true }); addEventListener("resize", req); upd();
 })();
