@@ -393,7 +393,7 @@ section{position:relative;scroll-margin-top:84px}
 @media (max-width:900px){.layers{grid-template-columns:1fr}.stack-stage{aspect-ratio:1/.75}}
 
 /* ---------- Para quem ---------- */
-.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .who .card .txt{padding:30px 28px}
 .who .size{font:600 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
 .who .kit{font:500 13px/1.6 var(--f-mono);color:var(--text);border-top:1px solid var(--line);padding-top:14px;margin-top:6px}
@@ -811,11 +811,24 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
     <div>
       <div class="sec-head" style="margin-bottom:24px">
         <p class="eyebrow">Camadas, como nos grandes</p>
-        <h2 id="layTitle">Oito camadas. <span class="grad-text">Uma tecla cada.</span></h2>
-        <p class="lede">Passe o rato por cima e veja cada camada subir. <kbd>F1</kbd> limpa tudo de uma vez.</p>
+        <h2 id="layTitle">Oito camadas. <span class="grad-text">E as que você quiser criar.</span></h2>
+        <p class="lede">Passe o rato por cima e veja cada camada subir. <kbd>F1</kbd> limpa tudo de uma vez. Crie camadas novas e mande cada conteúdo para a que quiser.</p>
       </div>
       <ul class="layer-list" id="layerList"></ul>
     </div>
+  </div>
+</section>
+
+
+<!-- ================= CAMADAS A SUA MANEIRA ================= -->
+<section class="sec" style="padding-top:0" aria-labelledby="mixTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Controle total</p>
+      <h2 id="mixTitle">Cada coisa na camada certa, <span class="grad-text">como numa mesa de vídeo.</span></h2>
+      <p class="lede">Para o culto de domingo e para a produção de um evento: o mesmo painel, sem plano pago.</p>
+    </div>
+    <div class="all" id="mixGrid"></div>
   </div>
 </section>
 
@@ -830,6 +843,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
       <article class="card rise"><div class="txt"><p class="size grad-text">Igreja pequena</p><h3>Um portátil e um projetor.</h3><p>O assistente inicial liga o projetor, instala a Bíblia e traz as primeiras músicas. Quem nunca operou projeção começa no mesmo dia.</p><p class="kit">1 computador · 1 projetor · celular como remote</p></div></article>
       <article class="card rise"><div class="txt"><p class="size grad-text">Igreja grande</p><h3>Telão, palco e live ao mesmo tempo.</h3><p>Uma saída para o telão, outra para o retorno com cifra, outra para o OBS com terço inferior. Cada uma mostra as camadas que precisa.</p><p class="kit">Várias saídas · palco · OBS / vMix · MIDI</p></div></article>
       <article class="card rise"><div class="txt"><p class="size grad-text">Eventos e conferências</p><h3>Telas grandes e fora do comum.</h3><p>Blend entre projetores com calibração por câmera, videowall de TVs, painel LED, video mapping e NDI para levar a imagem a toda a produção.</p><p class="kit">Multi-projetor · videowall · LED · mapping · NDI®</p></div></article>
+      <article class="card rise"><div class="txt"><p class="size grad-text">Empresas de eventos e áudio e vídeo</p><h3>Um programa para cada contrato.</h3><p>Painel LED calculado por módulos, videowall com compensação de molduras, mapping sobre palco e cenário, canais independentes, mesa de mistura e NDI®, tudo controlado por MIDI, Companion ou HTTP. Sem licença por computador nem por evento.</p><p class="kit">LED · videowall · mapping · canais · Companion</p></div></article>
     </div>
   </div>
 </section>
@@ -969,6 +983,7 @@ const CONFIG = {
         "Cifra na tela de palco, com mudança de tom",
         "Video mapping com superfícies, painel LED, canais e cenas",
         "Videowall de TVs no assistente de cenário, com espaço entre molduras compensado",
+        "Camadas novas, envio de cada conteúdo para a camada que quiser, mesa de mistura e canais",
         "Assistente de cenário e calibração com câmera",
         "Temas editáveis na própria imagem e terço inferior automático",
         "Ajuda com pesquisa e assistente inicial em 7 passos",
@@ -1183,6 +1198,14 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
     film: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
     stage: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+    plus: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/>',
+    send: '<path d="M4 12h14m-5-5 5 5-5 5"/><path d="M20 4v16"/>',
+    outs: '<rect x="2" y="4" width="9" height="7" rx="1.5"/><rect x="13" y="4" width="9" height="7" rx="1.5"/><rect x="7" y="14" width="10" height="7" rx="1.5"/>',
+    mix: '<path d="M6 3v18M12 3v18M18 3v18"/><circle cx="6" cy="15" r="2"/><circle cx="12" cy="8" r="2"/><circle cx="18" cy="13" r="2"/>',
+    chan: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
+    list: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
+    pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+    sound: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6"/>',
     drag: '<path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>'
   };
   const F = [
@@ -1194,7 +1217,7 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     ["compass", "Começa em 2 minutos", "Um assistente liga o projetor, instala a Bíblia e traz as primeiras músicas na primeira vez."],
     ["import", "Traz as suas músicas", "EasyWorship, ProPresenter, Holyrics, OpenLP, FreeShow, ChordPro e mais."],
     ["font", "27 fontes incluídas", "E guarda uma cópia das fontes do computador para abrir igual noutro PC."],
-    ["globe", "3 idiomas", "Português, English e Español na interface."],
+    ["globe", "6 idiomas", "Português do Brasil e de Portugal, English, Español, Français e Deutsch, na interface e na Ajuda."],
     ["shield", "Seguro", "PIN no remote, arquivos verificados ao abrir e aviso se o disco falhar."],
     ["undo", "Tem volta", "Ctrl+Z em quase tudo, Lixo de 15 dias e cópia automática diária."],
     ["upd", "Atualiza sem susto", "A versão nova só instala quando fechar o programa. Nunca no meio do culto."],
@@ -1203,7 +1226,19 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     ["stage", "Editor de palco à mão", "Puxe qualquer lado ou canto, com ímã e alinhar. Elementos sobrepostos escolhem-se com um clique repetido ou na lista."],
     ["drag", "Largue na programação", "Músicas, versículos, mídia, câmeras e até arquivos do computador. Anúncios: um só parado, ou a rodar por todos."]
   ];
-  $("#allGrid").innerHTML = F.map(([ic, t, d]) => `<article class="card rise"><div class="txt"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[ic]}</svg></span><h4>${t}</h4><p>${d}</p></div></article>`).join("");
+  const card = ([ic, t, d]) => `<article class="card rise"><div class="txt"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[ic]}</svg></span><h4>${t}</h4><p>${d}</p></div></article>`;
+  const M = [
+    ["plus", "Crie camadas novas", "Além das oito, acrescente camadas de Conteúdo (uma coisa de cada vez, como a Mídia) ou de Adereços (vários itens ligados ao mesmo tempo). Arraste para mudar a ordem."],
+    ["send", "Mande para a camada que quiser", "Botão direito em qualquer música, versículo, slide, vídeo, fundo ou câmera: «Enviar para a camada». Cada tipo de conteúdo pode ter a sua camada padrão."],
+    ["outs", "Cada saída, as suas camadas", "O saguão só com Anúncios, o OBS só com Slide e Mensagens, o telão com tudo. Escolhe-se por saída, e quantas saídas quiser."],
+    ["mix", "Mesa de mistura", "Opacidade, solo, brilho, contraste, saturação, tom, desfoque e 10 modos de mistura em cada camada. Guarde «looks» e chame-os por MIDI, Companion ou na programação."],
+    ["chan", "Canais: um conteúdo em cada superfície", "A letra no telão, um vídeo nas colunas, a câmera numa lateral. Mude tudo ao mesmo tempo com uma Cena."],
+    ["list", "A programação lembra tudo", "Cada item da programação guarda a camada e o look com que sai, e pode mudar vários canais de uma vez."],
+    ["pen", "Corrija a letra ao vivo", "Ctrl+E edita o slide que está no ar. A projeção, o OBS e o palco atualizam enquanto você digita, e o erro fica corrigido na música."],
+    ["sound", "Áudio e anúncios em loop", "Áudio nas saídas que escolher e uma fila de avisos para o saguão que roda sozinha, independente do slide."]
+  ];
+  $("#allGrid").innerHTML = F.map(card).join("");
+  $("#mixGrid").innerHTML = M.map(card).join("");
 })();
 
 /* brilho que segue o rato nos cartões */
