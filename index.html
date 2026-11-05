@@ -94,6 +94,7 @@ section{position:relative;scroll-margin-top:84px}
 
 /* ---------- Navegação ---------- */
 .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;padding-block:12px}
+.nav::before{content:"";position:absolute;left:50%;width:100vw;transform:translateX(-50%);top:-8px;height:calc(100% + 52px);z-index:-1;pointer-events:none;background:linear-gradient(to bottom,var(--bg) 0,var(--bg) 52%,color-mix(in srgb,var(--bg) 70%,transparent) 72%,transparent 100%)}
 .nav .bar{display:flex;align-items:center;gap:20px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(10,13,31,.62);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 10px 40px -20px rgba(0,0,0,.8)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;white-space:nowrap;font-size:16px}
 .brand img{width:30px;height:30px;border-radius:9px}
