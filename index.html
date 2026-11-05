@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Presenter Church Flow</title>
-<meta name="description" content="Software de projeção para igrejas e eventos. Letras, Bíblia, cifra no palco, video mapping, painel LED, remote, OBS e NDI. Gratuito, sem anúncios e completo para sempre. Windows e Mac.">
+<meta name="description" content="Software de projeção para igrejas e eventos. Letras, Bíblia, cifra no palco, video mapping, painel LED, videowall de TVs, remote, OBS e NDI. Gratuito, sem anúncios e completo para sempre. Windows e Mac.">
 <link rel="icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -635,8 +635,8 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
       <article class="card c-6 rise">
         <div class="txt map-txt">
           <h3>Blend, slices e video mapping. <span class="grad-text">Um conteúdo diferente em cada superfície.</span></h3>
-          <p>Junte projetores sem emendas, corte a imagem por várias telas ou painéis LED e projete em colunas, altar e paredes, cada um com a sua forma. A letra no centro, um vídeo nas colunas, a câmera numa lateral e o logo no altar, tudo ao mesmo tempo.</p>
-          <div class="tags"><span>Blend entre projetores</span><span>Slices / vídeo wall</span><span>Video mapping</span><span>Painel LED</span><span>Calibração por câmera</span><span>Cenas</span></div>
+          <p>Junte projetores sem emendas, monte um videowall com várias TVs, corte a imagem por telas ou painéis LED e projete em colunas, altar e paredes, cada um com a sua forma. A letra no centro, um vídeo nas colunas, a câmera numa lateral e o logo no altar, tudo ao mesmo tempo.</p>
+          <div class="tags"><span>Blend entre projetores</span><span>Videowall de TVs</span><span>Slices</span><span>Video mapping</span><span>Painel LED</span><span>Calibração por câmera</span><span>Cenas</span></div>
         </div>
         <div class="mapping big" aria-hidden="true">
           <div class="beam"></div>
@@ -829,7 +829,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
     <div class="who">
       <article class="card rise"><div class="txt"><p class="size grad-text">Igreja pequena</p><h3>Um portátil e um projetor.</h3><p>O assistente inicial liga o projetor, instala a Bíblia e traz as primeiras músicas. Quem nunca operou projeção começa no mesmo dia.</p><p class="kit">1 computador · 1 projetor · celular como remote</p></div></article>
       <article class="card rise"><div class="txt"><p class="size grad-text">Igreja grande</p><h3>Telão, palco e live ao mesmo tempo.</h3><p>Uma saída para o telão, outra para o retorno com cifra, outra para o OBS com terço inferior. Cada uma mostra as camadas que precisa.</p><p class="kit">Várias saídas · palco · OBS / vMix · MIDI</p></div></article>
-      <article class="card rise"><div class="txt"><p class="size grad-text">Eventos e conferências</p><h3>Telas grandes e fora do comum.</h3><p>Blend entre projetores com calibração por câmera, painel LED, video mapping e NDI para levar a imagem a toda a produção.</p><p class="kit">Multi-projetor · LED · mapping · NDI®</p></div></article>
+      <article class="card rise"><div class="txt"><p class="size grad-text">Eventos e conferências</p><h3>Telas grandes e fora do comum.</h3><p>Blend entre projetores com calibração por câmera, videowall de TVs, painel LED, video mapping e NDI para levar a imagem a toda a produção.</p><p class="kit">Multi-projetor · videowall · LED · mapping · NDI®</p></div></article>
     </div>
   </div>
 </section>
@@ -924,6 +924,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
       <details name="faq"><summary>Funciona com a minha app de escala de equipe?</summary><p>Liga-se ao <a href="https://escalachurchflow-woad.vercel.app/site" target="_blank" rel="noopener">Escala Church Flow</a>, uma app de escala para igrejas, gratuita e sem anúncios. A ligação é opcional e faz-se com um QR code. Importa músicas ou o culto inteiro, já no tom que a equipe vai tocar. Quem usa outra app de escalas continua a poder importar as músicas dos programas indicados acima.</p></details>
       <details name="faq"><summary>E se eu me perder no programa?</summary><p>Carregue em ? e escreva a dúvida com as suas palavras. A Ajuda mostra a melhor resposta e leva-o ao sítio certo. O assistente inicial também pode ser aberto outra vez a qualquer momento.</p></details>
       <details name="faq"><summary>Os meus dados estão seguros?</summary><p>Ficam na pasta Documentos › Church Flow Dados. Há uma cópia de segurança automática por dia, o que se apaga fica 15 dias no Lixo e quase tudo se desfaz com Ctrl+Z. O remote pode ter PIN.</p></details>
+      <details name="faq"><summary>Dá para montar um videowall com várias TVs?</summary><p>Sim. No assistente de cenário escolhe Videowall, indica quantas TVs há na largura e na altura e o programa divide a imagem por elas, cada TV numa saída. Pode compensar o espaço das molduras (em milímetros, com o tamanho da TV, ou em pixels) para a imagem continuar sem deformar, e escolher a ordem de numeração das TVs. Um padrão de teste contínuo ajuda a afinar tudo. O computador precisa de placa de vídeo com saídas suficientes e de potência para desenhar a parede inteira.</p></details>
       <details name="faq"><summary>Preciso de apoio ou tenho uma sugestão. Com quem falo?</summary><p>Escreva para <a href="mailto:presenterchurchflow@gmail.com?subject=Presenter%20Church%20Flow">presenterchurchflow@gmail.com</a>. Serve para dúvidas, ajuda com um problema, sugestões de melhorias e o que mais for preciso. Se for um problema, diga o que estava a fazer e a versão do programa (em Configurações › Sobre); se puder, junte o arquivo de registos e uma captura de tela.</p></details>
     </div>
   </div>
@@ -967,6 +968,7 @@ const CONFIG = {
       notes: [
         "Cifra na tela de palco, com mudança de tom",
         "Video mapping com superfícies, painel LED, canais e cenas",
+        "Videowall de TVs no assistente de cenário, com espaço entre molduras compensado",
         "Assistente de cenário e calibração com câmera",
         "Temas editáveis na própria imagem e terço inferior automático",
         "Ajuda com pesquisa e assistente inicial em 7 passos",
@@ -1002,7 +1004,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 
 /* ---------------- Marquee ---------------- */
 (function () {
-  const A = [["Letras da internet", "#22d3ee"], ["Bíblia em segundos", "#3b82f6"], ["Cifra no palco", "#ffc857"], ["Video mapping", "#8b5cf6"], ["Painel LED", "#22d3ee"], ["Fundos animados", "#ffc857"], ["Remote no celular", "#ec4899"], ["OBS e vMix", "#8b5cf6"], ["NDI®", "#22d3ee"]];
+  const A = [["Letras da internet", "#22d3ee"], ["Bíblia em segundos", "#3b82f6"], ["Cifra no palco", "#ffc857"], ["Video mapping", "#8b5cf6"], ["Painel LED", "#22d3ee"], ["Videowall de TVs", "#ec4899"], ["Fundos animados", "#ffc857"], ["Remote no celular", "#ec4899"], ["OBS e vMix", "#8b5cf6"], ["NDI®", "#22d3ee"]];
   const B = [["Blend entre projetores", "#8b5cf6"], ["Calibração por câmera", "#22d3ee"], ["Apresentações tipo PowerPoint", "#ffc857"], ["Alertas de berçário", "#3b82f6"], ["Cronômetros", "#8b5cf6"], ["MIDI e Companion", "#22d3ee"], ["8 camadas", "#ffc857"], ["Importa de outros programas", "#3b82f6"], ["Windows e Mac", "#8b5cf6"]];
   const fill = (el, arr) => { const html = arr.map(([t, c]) => `<span style="--c:${c}"><i></i>${t}</span>`).join(""); el.innerHTML = html + html; };
   fill($("#mq1"), A); fill($("#mq2"), B);
