@@ -44,8 +44,11 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html,body{height:100%}
+html{overflow:hidden}
+#page{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;overscroll-behavior:contain;padding:8px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.05) var(--fade-bar,12px),#000 var(--fade-h,98px));mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.05) var(--fade-bar,12px),#000 var(--fade-h,98px))}
+#page::before{content:"";display:block;height:var(--navh,82px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit}
 img{max-width:100%;display:block;height:auto}
 h1,h2,h3,h4{font-family:var(--f-display);font-weight:700;margin:0;letter-spacing:-.025em;line-height:1.02;text-wrap:balance}
@@ -93,8 +96,7 @@ section{position:relative;scroll-margin-top:84px}
 .btn[aria-disabled="true"]{background:var(--glass);color:var(--muted);box-shadow:none;cursor:not-allowed;border-color:var(--line);transform:none}
 
 /* ---------- Navegação ---------- */
-.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;padding-block:12px}
-main.fadetop{-webkit-mask-image:linear-gradient(to bottom,transparent var(--ft0,0px),#000 var(--ft1,90px));mask-image:linear-gradient(to bottom,transparent var(--ft0,0px),#000 var(--ft1,90px))}
+.nav{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:8px;right:8px;z-index:60;padding-block:12px}
 .nav .bar{display:flex;align-items:center;gap:20px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(10,13,31,.62);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 10px 40px -20px rgba(0,0,0,.8)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;white-space:nowrap;font-size:16px}
 .brand img{width:30px;height:30px;border-radius:9px}
@@ -474,6 +476,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  #page{scroll-behavior:auto}
   .hero-shot{transform:none}
 }
 </style>
@@ -500,6 +503,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
   </div>
 </header>
 
+<div id="page">
 <main id="top">
 <!-- ================= HERO ================= -->
 <section class="hero">
@@ -965,6 +969,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
     <p class="legal">© 2026 Lael Pereira. Gratuito para igrejas, ministérios e eventos, sem anúncios. Pode ser instalado e usado livremente e o instalador original pode ser partilhado sem custo; o código não é aberto. NDI® é uma marca registrada da Vizrt NDI AB. Os nomes de outros programas indicam apenas compatibilidade de importação.</p>
   </div>
 </footer>
+</div>
 
 <script>
 /* =====================================================================
@@ -1009,7 +1014,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
       shot.style.setProperty("--tilt", (22 * (1 - p)).toFixed(2) + "deg");
       shot.style.setProperty("--sc", (.9 + .1 * p).toFixed(3));
     };
-    addEventListener("scroll", upd, { passive: true }); addEventListener("resize", upd); upd();
+    document.addEventListener("scroll", upd, { passive: true, capture: true }); addEventListener("resize", upd); upd();
     const floats = shot.querySelectorAll(".float");
     addEventListener("pointermove", e => {
       const x = (e.clientX / innerWidth - .5), y = (e.clientY / innerHeight - .5);
@@ -1269,16 +1274,19 @@ document.addEventListener("pointermove", e => {
   btns[4].click();
 })();
 
-/* ---------------- Degradê do conteúdo que passa por baixo da barra fixa ---------------- */
+/* ---------------- Degradê sob a barra fixa: a página rola dentro de #page, com máscara fixa no ecrã ---------------- */
 (function () {
-  const main = $("main"), bar = document.querySelector(".nav .bar"); if (!main || !bar) return;
-  let q = 0;
-  const upd = () => { q = 0;
-    const m = main.getBoundingClientRect().top, b = bar.getBoundingClientRect(), bot = b.bottom;
-    if (m >= bot + 16) { main.classList.remove("fadetop"); return; }
-    main.style.setProperty("--ft0", Math.round(b.top - m) + "px"); main.style.setProperty("--ft1", Math.round(bot + 16 - m) + "px"); main.classList.add("fadetop"); };
-  const req = () => { if (!q) q = requestAnimationFrame(upd); };
-  addEventListener("scroll", req, { passive: true }); addEventListener("resize", req); upd();
+  const page = $("#page"), nav = document.querySelector(".nav"), bar = document.querySelector(".nav .bar"); if (!page || !nav || !bar) return;
+  const root = document.documentElement;
+  const set = () => {
+    const sb = page.offsetWidth - page.clientWidth;
+    nav.style.right = (8 + sb) + "px";
+    root.style.setProperty("--navh", Math.round(nav.offsetHeight) + "px");
+    const b = bar.getBoundingClientRect();
+    root.style.setProperty("--fade-bar", Math.round(b.top) + "px");
+    root.style.setProperty("--fade-h", Math.round(b.bottom + 16) + "px");
+  };
+  addEventListener("resize", set); set(); addEventListener("load", set);
 })();
 
 /* ---------------- Download ---------------- */
