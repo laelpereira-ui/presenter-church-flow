@@ -1,6 +1,6 @@
-# Presenter Church Flow
+# Presenter Flow
 
-Site oficial e downloads do **Presenter Church Flow**, software de projeção gratuito para igrejas e eventos.
+Site oficial e downloads do **Presenter Flow**, software de projeção gratuito para igrejas e eventos.
 
 - Site: https://presenterchurchflow.vercel.app
 - Instaladores: separador **Releases** deste repositório (Windows `.exe`, macOS `.dmg`).
