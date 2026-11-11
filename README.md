@@ -2,7 +2,7 @@
 
 Site oficial e downloads do **Presenter Flow**, software de projeção gratuito para igrejas e eventos.
 
-- Site: https://presenterchurchflow.vercel.app
+- Site: https://presenterflow.vercel.app
 - Instaladores: separador **Releases** deste repositório (Windows `.exe`, macOS `.dmg`).
 
 O programa é gratuito, sem anúncios e completo. O código do programa não está neste repositório.
