@@ -975,7 +975,11 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
 /* =====================================================================
    CONFIGURAÇÃO
    Os instaladores ficam nas Releases do GitHub (repo abaixo): a página mostra sozinha a versão mais
-   recente e as anteriores. A lista "releases" só é usada se o GitHub não responder.
+   recente e as anteriores. Quem as publica é o «Publicar versão» do repositório do programa (publicar.yml):
+   ao publicar, os botões e o número da versão mudam aqui sozinhos — não é preciso mexer no site.
+   Versões de teste (alpha/beta, «Pre-release») aparecem marcadas «teste» e só são a principal enquanto não
+   houver nenhuma versão final. A lista "releases" só é usada se o GitHub não responder; as suas "notes"
+   servem também de novidades quando uma versão sai sem notas.
    ===================================================================== */
 const CONFIG = {
   // Repositório do GitHub com as Releases (instaladores). A página lê as versões de lá sozinha.
@@ -986,15 +990,13 @@ const CONFIG = {
       macArm: "downloads/Presenter-Church-Flow-0.1.0-mac-arm64.dmg",
       macIntel: "downloads/Presenter-Church-Flow-0.1.0-mac-x64.dmg",
       notes: [
-        "Cifra na tela de palco, com mudança de tom",
-        "Video mapping com superfícies, painel LED, canais e cenas",
-        "Videowall de TVs no assistente de cenário, com espaço entre molduras compensado",
-        "Camadas novas, envio de cada conteúdo para a camada que quiser, mesa de mistura e canais",
-        "Assistente de cenário e calibração com câmera",
-        "Temas editáveis na própria imagem e terço inferior automático",
-        "Ajuda com pesquisa e assistente inicial em 7 passos",
-        "MIDI com playback, remote com QR e atalhos configuráveis",
-        "Versão para Mac (Apple Silicon e Intel)"
+        "Letra em duas línguas, com a tradução editada lado a lado",
+        "Duas versões da Bíblia ao mesmo tempo",
+        "Recorte de vídeo: só o trecho que interessa vai para o ar",
+        "Painel LED mais simples: escreva o tamanho em pixels",
+        "Escolha da saída de som em cada saída",
+        "Tela do celular sempre ligada com o remote aberto",
+        "Atalhos do Mac e 6 idiomas"
       ] }
   ]
 };
@@ -1301,24 +1303,27 @@ async function githubReleases() {
   try {
     const r = await fetch(`https://api.github.com/repos/${CONFIG.repo}/releases?per_page=30`, { headers: { Accept: "application/vnd.github+json" } });
     if (!r.ok) return null;
-    const list = (await r.json()).filter(x => !x.draft && !x.prerelease);
+    const list = (await r.json()).filter(x => !x.draft);
     const out = list.map(x => {
       const a = (x.assets || []).filter(f => !/blockmap|\.yml$/i.test(f.name));
       const pick = re => (a.find(f => re.test(f.name)) || {}).browser_download_url || null;
       const notes = (x.body || "").split(/\r?\n/).map(l => l.replace(/^\s*[-*•]\s*/, "").trim()).filter(l => l && !/^#/.test(l)).slice(0, 8);
-      return { version: x.tag_name.replace(/^v/i, ""), date: (x.published_at || "").slice(0, 10), win: pick(/\.exe$/i), macArm: pick(/arm64\.dmg$/i), macIntel: pick(/x64\.dmg$/i), notes, remote: true };
+      return { version: x.tag_name.replace(/^v/i, ""), date: (x.published_at || "").slice(0, 10), win: pick(/\.exe$/i), macArm: pick(/arm64\.dmg$/i), macIntel: pick(/x64\.dmg$/i), notes, test: !!x.prerelease, remote: true };
     }).filter(x => x.win || x.macArm || x.macIntel);
-    return out.length ? out : null;
+    if (!out.length) return null;
+    // a versão principal é a final mais recente; enquanto não houver nenhuma final, é a de teste (alpha/beta) mais recente
+    const main = out.find(x => !x.test) || out[0];
+    return [main, ...out.filter(x => x !== main)];
   } catch { return null; }
 }
 async function setupDownloads() {
   const gh = await githubReleases();
   const rel = gh || CONFIG.releases, L = rel[0];
   if (gh && !L.notes.length) L.notes = CONFIG.releases[0].notes;
-  $("#dlVer").textContent = "v" + L.version; $("#dlDate").textContent = L.date ? fmtDate(L.date) : "";
-  $("#heroDlMeta").textContent = "Grátis · versão " + L.version;
+  $("#dlVer").textContent = "v" + L.version; $("#dlDate").textContent = (L.date ? fmtDate(L.date) : "") + (L.test ? " · versão de teste: pode ter falhas" : "");
+  $("#heroDlMeta").textContent = "Grátis · versão " + L.version + (L.test ? " (teste)" : "");
   $("#notes").innerHTML = L.notes.map(n => `<li>${esc(n)}</li>`).join("");
-  $("#oldList").innerHTML = rel.length > 1 ? rel.slice(1).map(r => `<li><span class="v">v${esc(r.version)}</span><span style="color:var(--muted);font-size:14px">${r.date ? fmtDate(r.date) : ""}</span><span class="links">${r.win ? `<a href="${esc(r.win)}">Windows</a>` : ""}${r.macArm ? `<a href="${esc(r.macArm)}">Mac M</a>` : ""}${r.macIntel ? `<a href="${esc(r.macIntel)}">Mac Intel</a>` : ""}</span></li>`).join("") : `<li style="display:block;color:var(--muted);font-size:15px">Esta é a primeira versão. As anteriores aparecem aqui quando sair a próxima.</li>`;
+  $("#oldList").innerHTML = rel.length > 1 ? rel.slice(1).map(r => `<li><span class="v">v${esc(r.version)}${r.test ? " (teste)" : ""}</span><span style="color:var(--muted);font-size:14px">${r.date ? fmtDate(r.date) : ""}</span><span class="links">${r.win ? `<a href="${esc(r.win)}">Windows</a>` : ""}${r.macArm ? `<a href="${esc(r.macArm)}">Mac M</a>` : ""}${r.macIntel ? `<a href="${esc(r.macIntel)}">Mac Intel</a>` : ""}</span></li>`).join("") : `<li style="display:block;color:var(--muted);font-size:15px">Esta é a primeira versão. As anteriores aparecem aqui quando sair a próxima.</li>`;
   // links do GitHub já vêm confirmados pela lista de Releases; arquivos locais (pasta downloads) são verificados
   const ok = u => !u ? Promise.resolve(false) : /^https?:/i.test(u) ? Promise.resolve(true) : exists(u);
   const [w, ma, mi] = await Promise.all([ok(L.win), ok(L.macArm), ok(L.macIntel)]);
