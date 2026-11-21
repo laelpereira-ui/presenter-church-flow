@@ -306,6 +306,38 @@ section{position:relative;scroll-margin-top:84px}
 .ndi text{fill:#dbe1ff}
 .ndi .hubt{fill:#2a1700;font-weight:700}
 .esc-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
+/* Púlpito: ilustração (tablet do pregador → telão), feita em HTML/CSS */
+.pul-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+.pul-card .txt{padding:34px 30px 18px}
+.pul-vis{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1.15fr);align-items:center;gap:6px;padding:4px 30px 30px}
+.pul-tab{border-radius:20px;padding:12px;background:#0d1124;border:1px solid var(--line-2);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.pul-tab .scr{border-radius:12px;background:#f4f3fb;color:#14142b;padding:14px 14px 12px;display:grid;gap:7px;font-size:12.5px;line-height:1.35}
+.pul-tab .k{font-size:10px;letter-spacing:.12em;font-weight:700;color:#6b6b8f}
+.pul-tab .t{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.pul-tab .row{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;padding:7px 8px;border-radius:9px;background:#fff;border:1px solid #e3e2f3}
+.pul-tab .row b{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#4f46e5;color:#fff;font-size:11px}
+.pul-tab .row.hold{box-shadow:0 0 0 3px rgba(22,163,74,.85);background:#ecfdf3;position:relative}
+.pul-tab .row.hold::after{content:"segure";position:absolute;right:8px;top:-9px;font-size:10px;font-weight:700;color:#fff;background:#16a34a;border-radius:999px;padding:1px 8px}
+.pul-tab .vchip{display:inline-block;padding:2px 8px;border-radius:999px;background:#eeedfd;color:#4f46e5;font-weight:700;font-size:11.5px}
+.pul-tab .bar{display:flex;gap:6px;justify-content:space-between;align-items:center;margin-top:2px}
+.pul-tab .tb{font-size:10.5px;font-weight:800;padding:6px 9px;border-radius:999px;background:#14142b;color:#fff;display:inline-flex;align-items:center;gap:6px}
+.pul-tab .tb i{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}
+.pul-arrow{display:grid;justify-items:center;gap:4px;color:var(--gold);font-size:12px;font-weight:700;text-align:center}
+.pul-arrow span{font-size:28px;line-height:1}
+.pul-arrow .ar-d{display:none}
+.pul-scr{border-radius:14px;aspect-ratio:16/9;background:radial-gradient(120% 120% at 30% 10%,#2b3a8f,#0b0f26 70%);border:6px solid #050712;box-shadow:0 24px 60px rgba(0,0,0,.45);display:grid;align-content:center;justify-items:center;text-align:center;padding:16px;gap:6px}
+.pul-scr .p{font-size:clamp(18px,2.4vw,30px);font-weight:800;color:#fff;letter-spacing:-.01em}
+.pul-scr .r{font-size:clamp(11px,1.1vw,14px);color:var(--gold);font-weight:700;letter-spacing:.06em}
+.pul-states{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pul-states span{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line-2);background:var(--glass);display:inline-flex;align-items:center;gap:6px}
+.pul-states i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.pul-shots{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,3.4fr) minmax(0,1fr);gap:16px;padding:0 30px 30px;align-items:end}
+.pul-shots figure{margin:0;display:grid;gap:8px}
+.pul-shots img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line-2);box-shadow:0 18px 44px rgba(0,0,0,.35);background:#f4f3fb}
+.pul-shots figcaption{font-size:13px;color:var(--muted);text-align:center}
+@media (max-width:700px){.pul-shots{grid-template-columns:1fr;padding:0 18px 24px}.pul-shots figure:last-child{max-width:190px;justify-self:center}}
+@media (max-width:1000px){.pul-card{grid-template-columns:1fr}.pul-card .esc-list{padding:0 22px 22px}}
+@media (max-width:700px){.pul-vis{grid-template-columns:1fr;padding:4px 18px 24px}.pul-arrow{grid-auto-flow:column;justify-content:center;align-items:center;gap:8px}.pul-arrow .ar-r{display:none}.pul-arrow .ar-d{display:inline}}
 .esc-card .txt{padding:34px 30px}
 .esc-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:8px}
 .esc-opt{font-size:13.5px;color:var(--muted)}
@@ -722,6 +754,40 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
         </ul>
       </article>
 
+      <!-- 10. App Púlpito -->
+      <article class="card c-6 rise pul-card" id="pulpito">
+        <div class="txt">
+          <p class="eyebrow">Púlpito Church Flow</p>
+          <h3>O pregador toca no esboço. <span class="grad-text">O telão acompanha.</span></h3>
+          <p>O <b>Púlpito</b> é uma app gratuita para montar e pregar esboços de sermão no iPad, tablet ou celular, com tempo para cada bloco. Ligada ao Presenter, o versículo que o pregador toca aparece logo no telão, com a Bíblia que já está instalada no programa. O operador deixa de correr atrás da referência.</p>
+          <div class="esc-cta"><a class="btn btn-primary" href="https://pulpitochurchflow.vercel.app/site" target="_blank" rel="noopener"><span>Conhecer o Púlpito</span></a><span class="esc-opt">A ligação é opcional e pode ser desligada a qualquer momento.</span></div>
+          <div class="pul-states" aria-label="Estados do telão"><span><i style="background:#16a34a"></i>No ar</span><span><i style="background:#f59e0b"></i>Pausa</span><span><i style="background:#dc2626"></i>Parado</span></div>
+        </div>
+        <ul class="esc-list">
+          <li><i>✝</i><span>O versículo tocado vai para o telão<small>O texto vem da Bíblia instalada no Presenter, na mesma tradução do esboço (NVI, ARA, NAA, NIV, KJV…).</small></span></li>
+          <li><i>✋</i><span>Segure para projetar qualquer linha<small>Título, ponto, citação, aplicação ou ideia central: segurar o dedo meio segundo põe essa linha no telão, com o tema da pregação.</small></span></li>
+          <li><i>¶</i><span>O esboço entra na programação<small>Um toque cria a secção «Pregação · título» com um slide por bloco. Ponha uma imagem em cada slide; quando o bloco muda, o slide muda.</small></span></li>
+          <li><i>●</i><span>No ar, Pausa ou Parado<small>O pregador vê no tablet se o que toca vai para o telão e pode pôr no ar ou pausar. Em Parado, só o operador volta a ligar.</small></span></li>
+          <li><i>▦</i><span>Liga com um QR code<small>Leia o código do Presenter com a câmera. Funciona pela internet: o tablet não precisa de estar na mesma rede.</small></span></li>
+        </ul>
+        <div class="pul-vis" aria-hidden="true">
+          <div class="pul-tab"><div class="scr">
+            <span class="k">ESBOÇO · PONTO 1</span>
+            <span class="t">A oração, remédio para a ansiedade</span>
+            <div class="row"><b>I</b><span>Não fique ansioso <span class="vchip">Filipenses 4:6</span></span></div>
+            <div class="row hold"><b>1</b><span>Ore por tudo, com gratidão</span></div>
+            <div class="row"><b>2</b><span>A paz que guarda o coração</span></div>
+            <div class="bar"><span class="tb">⏱ 06:40</span><span class="tb"><i></i>TELÃO: NO AR</span></div>
+          </div></div>
+          <div class="pul-arrow"><span class="ar-r">→</span><span class="ar-d">↓</span>pela internet</div>
+          <div class="pul-scr"><span class="p">Ore por tudo, com gratidão</span><span class="r">PONTO 1 · FILIPENSES 4:6</span></div>
+        </div>
+        <div class="pul-shots">
+          <figure><img src="img/pulpito-ipad.webp" width="1600" height="1111" loading="lazy" decoding="async" alt="O Púlpito no iPad: o esboço com o tempo total e o tempo de cada parte"><figcaption>O esboço no iPad, com o tempo de cada parte</figcaption></figure>
+          <figure><img src="img/pulpito-celular.webp" width="600" height="1414" loading="lazy" decoding="async" alt="O mesmo esboço no celular"><figcaption>O mesmo esboço no celular</figcaption></figure>
+        </div>
+      </article>
+
     </div>
   </div>
 </section>
@@ -941,6 +1007,7 @@ footer .legal{flex-basis:100%;font-size:13px;line-height:1.6}
       <details name="faq"><summary>Funciona no Mac?</summary><p>Sim, nos Macs com chip Apple (M1 a M4) e nos Macs Intel, a partir do macOS 10.15 (Catalina). Na primeira vez, tente abrir a app e depois vá a Definições do Sistema › Privacidade e Segurança › Abrir mesmo assim.</p></details>
       <details name="faq"><summary>Consigo trazer as músicas do programa que uso hoje?</summary><p>Sim. Importa do EasyWorship 6 e 7, ProPresenter 4 a 7, Holyrics, OpenLP, FreeShow, OpenSong, ChordPro, CCLI SongSelect, PowerPoint e texto simples. Antes de importar, você vê a lista e as músicas repetidas.</p></details>
       <details name="faq"><summary>Funciona com a minha app de escala de equipe?</summary><p>Liga-se ao <a href="https://escalachurchflow-woad.vercel.app/site" target="_blank" rel="noopener">Escala Flow</a>, uma app de escala para igrejas, gratuita e sem anúncios. A ligação é opcional e faz-se com um QR code. Importa músicas ou o culto inteiro, já no tom que a equipe vai tocar. Quem usa outra app de escalas continua a poder importar as músicas dos programas indicados acima.</p></details>
+      <details name="faq"><summary>O pregador pode mandar os versículos para o telão?</summary><p>Sim, com o <a href="https://pulpitochurchflow.vercel.app/site" target="_blank" rel="noopener">Púlpito</a>, uma app gratuita de esboços de sermão. O versículo que o pregador toca aparece no telão com a Bíblia instalada no Presenter, e segurar uma linha do esboço projeta essa linha. O operador escolhe se está No ar, em Pausa (o pregador pode ligar) ou Parado (só o operador volta a ligar).</p></details>
       <details name="faq"><summary>E se eu me perder no programa?</summary><p>Carregue em ? e escreva a dúvida com as suas palavras. A Ajuda mostra a melhor resposta e leva-o ao sítio certo. O assistente inicial também pode ser aberto outra vez a qualquer momento.</p></details>
       <details name="faq"><summary>Os meus dados estão seguros?</summary><p>Ficam na pasta Documentos › Presenter Flow Dados. Há uma cópia de segurança automática por dia, o que se apaga fica 15 dias no Lixo e quase tudo se desfaz com Ctrl+Z. O remote pode ter PIN.</p></details>
       <details name="faq"><summary>Dá para montar um videowall com várias TVs?</summary><p>Sim. No assistente de cenário escolhe Videowall, indica quantas TVs há na largura e na altura e o programa divide a imagem por elas, cada TV numa saída. Pode compensar o espaço das molduras (em milímetros, com o tamanho da TV, ou em pixels) para a imagem continuar sem deformar, e escolher a ordem de numeração das TVs. Um padrão de teste contínuo ajuda a afinar tudo. O computador precisa de placa de vídeo com saídas suficientes e de potência para desenhar a parede inteira.</p></details>
