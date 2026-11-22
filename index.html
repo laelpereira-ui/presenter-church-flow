@@ -1052,6 +1052,14 @@ const CONFIG = {
   // Repositório do GitHub com as Releases (instaladores). A página lê as versões de lá sozinha.
   repo: "laelpereira-ui/presenter-church-flow",
   releases: [
+    { version: "0.2.0-alpha.11", date: "2026-11-22", test: true,
+      win: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.11/Presenter-Flow-Setup-0.2.0-alpha.11.exe",
+      macArm: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.11/Presenter-Flow-0.2.0-alpha.11-mac-arm64.dmg",
+      macIntel: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.11/Presenter-Flow-0.2.0-alpha.11-mac-x64.dmg",
+      notes: [
+        "Macros: novo passo «Saída: mudar o tema» para mudar de uma vez o tema da projeção, o da transmissão e o layout do palco",
+        "Barra das camadas só com a altura dos ícones; mais espaço para as abas de baixo"
+      ] },
     { version: "0.2.0-alpha.10", date: "2026-11-22", test: true,
       win: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.10/Presenter-Flow-Setup-0.2.0-alpha.10.exe",
       macArm: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.10/Presenter-Flow-0.2.0-alpha.10-mac-arm64.dmg",
@@ -1318,7 +1326,7 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     ["send", "Mande para a camada que quiser", "Botão direito em qualquer música, versículo, slide, vídeo, fundo ou câmera: «Enviar para a camada». Cada tipo de conteúdo pode ter a sua camada padrão."],
     ["outs", "Cada saída, as suas camadas", "O saguão só com Anúncios, o OBS só com Slide e Mensagens, o telão com tudo. Escolhe-se por saída, e quantas saídas quiser."],
     ["mix", "Mesa de mistura", "Opacidade, solo, brilho, contraste, saturação, tom, desfoque e 10 modos de mistura em cada camada. Guarde «looks» e chame-os por MIDI, Companion ou na programação."],
-    ["chan", "Canais: um conteúdo em cada superfície", "A letra no telão, um vídeo nas colunas, a câmera numa lateral. Mude tudo ao mesmo tempo com uma Cena."],
+    ["chan", "Canais: um conteúdo em cada superfície", "A letra no telão, um vídeo nas colunas, a câmera numa lateral. Mude tudo ao mesmo tempo com uma Cena. E uma macro troca o tema da projeção, o da transmissão e o layout do palco num só clique."],
     ["list", "A programação lembra tudo", "Cada item da programação guarda a camada e o look com que sai, e pode mudar vários canais de uma vez."],
     ["pen", "Corrija a letra ao vivo", "Ctrl+E edita o slide que está no ar. A projeção, o OBS e o palco atualizam enquanto você digita, e o erro fica corrigido na música."],
     ["layers", "Barra das camadas sempre à mão", "Fica à direita, fora do layout, e ocupa só a altura dos ícones: cresce quando você cria camadas e deixa espaço para alertas e cronômetros. A seta abre os detalhes de cada camada."],
