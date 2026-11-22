@@ -1102,7 +1102,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 /* ---------------- Marquee ---------------- */
 (function () {
   const A = [["Letras da internet", "#22d3ee"], ["Bíblia em segundos", "#3b82f6"], ["Cifra no palco", "#ffc857"], ["Video mapping", "#8b5cf6"], ["Painel LED", "#22d3ee"], ["Videowall de TVs", "#ec4899"], ["Fundos animados", "#ffc857"], ["Remote no celular", "#ec4899"], ["OBS e vMix", "#8b5cf6"], ["NDI®", "#22d3ee"]];
-  const B = [["Blend entre projetores", "#8b5cf6"], ["Calibração por câmera", "#22d3ee"], ["Apresentações tipo PowerPoint", "#ffc857"], ["Alertas de berçário", "#3b82f6"], ["Cronômetros", "#8b5cf6"], ["MIDI e Companion", "#22d3ee"], ["8 camadas", "#ffc857"], ["Importa de outros programas", "#3b82f6"], ["Windows e Mac", "#8b5cf6"]];
+  const B = [["Blend entre projetores", "#8b5cf6"], ["Calibração por câmera", "#22d3ee"], ["Apresentações tipo PowerPoint", "#ffc857"], ["Alertas de berçário", "#3b82f6"], ["Cronômetros", "#8b5cf6"], ["MIDI e Companion", "#22d3ee"], ["8 camadas", "#ffc857"], ["Multiview com solo", "#22d3ee"], ["Importa de outros programas", "#3b82f6"], ["Windows e Mac", "#8b5cf6"]];
   const fill = (el, arr) => { const html = arr.map(([t, c]) => `<span style="--c:${c}"><i></i>${t}</span>`).join(""); el.innerHTML = html + html; };
   fill($("#mq1"), A); fill($("#mq2"), B);
 })();
@@ -1288,6 +1288,7 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     list: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
     sound: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6"/>',
+    mv: '<rect x="2" y="3" width="20" height="15" rx="2"/><path d="M2 10.5h20M9 3v15M15 3v15M8 21h8"/>',
     drag: '<path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>'
   };
   const F = [
@@ -1320,6 +1321,8 @@ setInterval(() => { const d = new Date(); $("#monClock").textContent = d.toLocal
     ["chan", "Canais: um conteúdo em cada superfície", "A letra no telão, um vídeo nas colunas, a câmera numa lateral. Mude tudo ao mesmo tempo com uma Cena."],
     ["list", "A programação lembra tudo", "Cada item da programação guarda a camada e o look com que sai, e pode mudar vários canais de uma vez."],
     ["pen", "Corrija a letra ao vivo", "Ctrl+E edita o slide que está no ar. A projeção, o OBS e o palco atualizam enquanto você digita, e o erro fica corrigido na música."],
+    ["layers", "Barra das camadas sempre à mão", "Fica à direita, fora do layout, e ocupa só a altura dos ícones: cresce quando você cria camadas e deixa espaço para alertas e cronômetros. A seta abre os detalhes de cada camada."],
+    ["mv", "Multiview: tudo à vista", "Programa, cada camada, video mapping, palco e saídas individuais em miniaturas, sem scroll. Escolha quais aparecem, clique numa para ver em solo e abra noutro monitor ou num tablet por link."],
     ["sound", "Áudio e anúncios em loop", "Áudio nas saídas que escolher e uma fila de avisos para o saguão que roda sozinha, independente do slide."]
   ];
   $("#allGrid").innerHTML = F.map(card).join("");
