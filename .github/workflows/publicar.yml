@@ -1,0 +1,181 @@
+# Publica uma versão nova do Presenter Flow A PARTIR DESTE REPOSITÓRIO PÚBLICO (onde os minutos do GitHub Actions são
+# grátis e sem limite). O código do programa continua PRIVADO, em laelpereira-ui/presenter-church-flow-app: esta
+# automatização vai buscá-lo só para gerar os instaladores, que ficam nas "Releases" deste repositório (o site lê-as sozinho).
+#
+# Precisa UMA vez do segredo APP_CODE_TOKEN (Settings › Secrets and variables › Actions › New repository secret, NESTE
+# repositório): um «fine-grained token» do GitHub com acesso SÓ ao repositório presenter-church-flow-app e a permissão
+# «Contents: Read-only». Publicar as Releases usa a chave automática deste repositório (não precisa de mais nada).
+#
+# Como usar: separador "Actions" › "Publicar versão" › "Run workflow" › escreva a versão (ex.: 0.2.0-alpha.13) e as
+# novidades separadas por «;». Com «Só testar» marcado, gera os instaladores mas NÃO publica nada (para experimentar).
+# Versões alpha/beta ficam como «Pre-release» e só as recebem as cópias de teste; uma versão final (ex.: 1.0.0) chega a todos.
+# Cada número só se publica uma vez: o seguinte tem de ser maior (alpha.12 → alpha.13 → … → beta.1 → 1.0.0).
+#
+# Segurança: só quem pode escrever neste repositório consegue correr isto (workflow_dispatch); o código privado só existe
+# na máquina temporária do GitHub durante a geração. Os registos (logs) são públicos mas não mostram o código.
+name: Publicar versão
+
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Número da versão nova (ex.: 0.2.0-alpha.13) — tem de ser maior que a anterior"
+        required: true
+      notas:
+        description: "O que mudou, separado por ; (aparece no programa antes de atualizar e no site)"
+        required: false
+      so_testar:
+        description: "Só testar: gerar os instaladores sem publicar"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # criar a Release e juntar-lhe os instaladores (só neste repositório)
+
+env:
+  CODIGO: laelpereira-ui/presenter-church-flow-app # repositório privado com o código
+  DESTINO: ${{ github.repository }}                 # este repositório público (Releases que o site e o programa leem)
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    outputs:
+      versao: ${{ steps.versao.outputs.versao }}
+    steps:
+      - name: Confirmar o segredo APP_CODE_TOKEN
+        shell: bash
+        env:
+          T: ${{ secrets.APP_CODE_TOKEN }}
+        run: |
+          if [ -z "$T" ]; then
+            echo "::error::Falta o segredo APP_CODE_TOKEN (token com «Contents: Read-only» no repositório presenter-church-flow-app). Veja o início deste ficheiro."
+            exit 1
+          fi
+
+      - name: Buscar o código (repositório privado)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CODIGO }}
+          token: ${{ secrets.APP_CODE_TOKEN }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar versão e destino da publicação
+        id: versao
+        shell: bash
+        env:
+          VERSAO: ${{ github.event.inputs.versao }}
+          NOTAS: ${{ github.event.inputs.notas }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const v = String(process.env.VERSAO || '').trim().replace(/^v/, '');
+            if (!/^\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$/.test(v)) { console.error('Versão inválida: ' + v + ' (ex.: 0.2.0-alpha.13 ou 1.0.0)'); process.exit(1); }
+            p.version = v;
+            const teste = v.includes('-');
+            const [owner, repo] = process.env.DESTINO.split('/');
+            p.build.publish = [{ provider: 'github', owner, repo, releaseType: teste ? 'prerelease' : 'release' }];
+            if (process.env.NOTAS) p.build.releaseInfo = { releaseNotes: process.env.NOTAS };
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2));
+            console.log('Versão ' + v + (teste ? ' (pre-release)' : '') + ' para ' + owner + '/' + repo);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'versao=' + v + '\n');
+          "
+
+      - name: Instalar componentes
+        run: npm install --no-audit --no-fund
+
+      - name: Gerar o instalador (e publicar)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          SO_TESTAR: ${{ github.event.inputs.so_testar }}
+        run: |
+          node scripts/minificar.js
+          node scripts/preparar-windows.js
+          if [ "$SO_TESTAR" = "true" ]; then P=never; else P=always; fi
+          npx electron-builder --win nsis --x64 --publish $P
+
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: instalador-windows
+          path: dist/*.exe
+          retention-days: 3
+
+  # Mac: os dois .dmg (chip Apple e Intel) vão para a mesma Release. O programa no Mac lê as Releases (updateRepo),
+  # baixa o .dmg certo e troca a app sozinho (electron/updater.js).
+  mac:
+    needs: windows
+    runs-on: macos-latest
+    steps:
+      - name: Buscar o código (repositório privado)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CODIGO }}
+          token: ${{ secrets.APP_CODE_TOKEN }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Versão
+        env:
+          VERSAO: ${{ needs.windows.outputs.versao }}
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.env.VERSAO;p.updateRepo=process.env.DESTINO;fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+
+      - name: Instalar componentes
+        run: npm install --no-audit --no-fund
+
+      - name: Gerar os .dmg (chip Apple e Intel)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          sudo pkill -9 XProtect >/dev/null 2>&1 || true
+          node scripts/minificar.js
+          for arch in arm64 x64; do
+            ok=0
+            for try in 1 2 3; do
+              if npx electron-builder --mac dmg --$arch --publish never; then ok=1; break; fi
+              echo "::warning::.dmg $arch falhou (tentativa $try) — a tentar de novo"
+              sudo pkill -9 XProtect >/dev/null 2>&1 || true
+              hdiutil info | grep -o '/dev/disk[0-9]*' | sort -u | xargs -I{} hdiutil detach -force {} >/dev/null 2>&1 || true
+              sleep 10
+            done
+            [ $ok = 1 ] || exit 1
+          done
+
+      - name: Juntar os .dmg à Release
+        if: ${{ github.event.inputs.so_testar != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSAO: ${{ needs.windows.outputs.versao }}
+        run: gh release upload "v$VERSAO" dist/*.dmg --repo "$DESTINO" --clobber
+
+      - name: Notas da versão na Release
+        if: ${{ github.event.inputs.so_testar != 'true' && github.event.inputs.notas != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSAO: ${{ needs.windows.outputs.versao }}
+          NOTAS: ${{ github.event.inputs.notas }}
+        run: |
+          printf '%s\n' "$NOTAS" | tr ';' '\n' | sed 's/^ *//; s/^/- /' > notas.md
+          gh release edit "v$VERSAO" --repo "$DESTINO" --notes-file notas.md
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.so_testar == 'true' }}
+        continue-on-error: true
+        with:
+          name: instalador-mac
+          path: dist/*.dmg
+          retention-days: 3
