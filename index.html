@@ -1052,6 +1052,17 @@ const CONFIG = {
   // Repositório do GitHub com as Releases (instaladores). A página lê as versões de lá sozinha.
   repo: "laelpereira-ui/presenter-church-flow",
   releases: [
+    { version: "0.2.0-beta.1", date: "2026-11-23", test: true,
+      win: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-beta.1/Presenter-Flow-Setup-0.2.0-beta.1.exe",
+      macArm: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-beta.1/Presenter-Flow-0.2.0-beta.1-mac-arm64.dmg",
+      macIntel: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-beta.1/Presenter-Flow-0.2.0-beta.1-mac-x64.dmg",
+      notes: [
+        "Primeira versão beta",
+        "Programação com subsecções: clicar na secção mostra os conteúdos de todas as subsecções",
+        "Macros com mídia: pôr no ar uma imagem ou vídeo à escolha (em vez do logo, entre itens, no fim de um vídeo)",
+        "O logo pode ser um vídeo em loop, sem som",
+        "Multiview só com o programa, o palco e as saídas"
+      ] },
     { version: "0.2.0-alpha.13", date: "2026-11-23", test: true,
       win: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.13/Presenter-Flow-Setup-0.2.0-alpha.13.exe",
       macArm: "https://github.com/laelpereira-ui/presenter-church-flow/releases/download/v0.2.0-alpha.13/Presenter-Flow-0.2.0-alpha.13-mac-arm64.dmg",
@@ -1438,10 +1449,11 @@ async function setupDownloads() {
   const gh = await githubReleases();
   const rel = gh || CONFIG.releases, L = rel[0];
   if (gh && !L.notes.length) L.notes = CONFIG.releases[0].notes;
-  $("#dlVer").textContent = "v" + L.version; $("#dlDate").textContent = (L.date ? fmtDate(L.date) : "") + (L.test ? " · versão de teste: pode ter falhas" : "");
-  $("#heroDlMeta").textContent = "Grátis · versão " + L.version + (L.test ? " (teste)" : "");
+  const tag = v => /-beta/.test(v) ? "beta" : "teste"; // versões beta aparecem como «beta»; alpha/rc como «teste»
+  $("#dlVer").textContent = "v" + L.version; $("#dlDate").textContent = (L.date ? fmtDate(L.date) : "") + (L.test ? " · versão " + tag(L.version) + ": pode ter falhas" : "");
+  $("#heroDlMeta").textContent = "Grátis · versão " + L.version + (L.test ? " (" + tag(L.version) + ")" : "");
   $("#notes").innerHTML = L.notes.map(n => `<li>${esc(n)}</li>`).join("");
-  $("#oldList").innerHTML = rel.length > 1 ? rel.slice(1).map(r => `<li><span class="v">v${esc(r.version)}${r.test ? " (teste)" : ""}</span><span style="color:var(--muted);font-size:14px">${r.date ? fmtDate(r.date) : ""}</span><span class="links">${r.win ? `<a href="${esc(r.win)}">Windows</a>` : ""}${r.macArm ? `<a href="${esc(r.macArm)}">Mac M</a>` : ""}${r.macIntel ? `<a href="${esc(r.macIntel)}">Mac Intel</a>` : ""}</span></li>`).join("") : `<li style="display:block;color:var(--muted);font-size:15px">Esta é a primeira versão. As anteriores aparecem aqui quando sair a próxima.</li>`;
+  $("#oldList").innerHTML = rel.length > 1 ? rel.slice(1).map(r => `<li><span class="v">v${esc(r.version)}${r.test ? " (" + tag(r.version) + ")" : ""}</span><span style="color:var(--muted);font-size:14px">${r.date ? fmtDate(r.date) : ""}</span><span class="links">${r.win ? `<a href="${esc(r.win)}">Windows</a>` : ""}${r.macArm ? `<a href="${esc(r.macArm)}">Mac M</a>` : ""}${r.macIntel ? `<a href="${esc(r.macIntel)}">Mac Intel</a>` : ""}</span></li>`).join("") : `<li style="display:block;color:var(--muted);font-size:15px">Esta é a primeira versão. As anteriores aparecem aqui quando sair a próxima.</li>`;
   // links do GitHub já vêm confirmados pela lista de Releases; arquivos locais (pasta downloads) são verificados
   const ok = u => !u ? Promise.resolve(false) : /^https?:/i.test(u) ? Promise.resolve(true) : exists(u);
   const [w, ma, mi] = await Promise.all([ok(L.win), ok(L.macArm), ok(L.macIntel)]);
