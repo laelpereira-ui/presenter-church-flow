@@ -1460,7 +1460,7 @@ async function setupDownloads() {
   const gh = await githubReleases();
   const rel = gh || CONFIG.releases, L = rel[0];
   if (gh && !L.notes.length) L.notes = CONFIG.releases[0].notes;
-  const nice = v => { const m = /^(\d+\.\d+\.\d+)-beta\.(\d+)$/.exec(v); return m ? "Beta " + m[1] + (+m[2] > 1 ? " (" + m[2] + ")" : "") : "v" + v; };
+  const nice = v => { const m = /^(\d+\.\d+\.\d+)-beta\.(\d+)$/.exec(v); return m ? "Beta " + (+m[2] > 1 ? m[2] : m[1]) : "v" + v; };
   const tag = v => /-beta/.test(v) ? "beta" : "teste"; // versões beta aparecem como «beta»; alpha/rc como «teste»
   $("#dlVer").textContent = nice(L.version); $("#dlDate").textContent = (L.date ? fmtDate(L.date) : "") + (L.test ? " · versão " + tag(L.version) + ": pode ter falhas" : "");
   $("#heroDlMeta").textContent = "Grátis · " + nice(L.version).replace(/^v/, "versão ") + (L.test && !/^Beta/.test(nice(L.version)) ? " (" + tag(L.version) + ")" : "");
