@@ -74,7 +74,7 @@ jobs:
             const fs = require('fs');
             const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
             const v = String(process.env.VERSAO || '').trim().replace(/^v/, '');
-            if (!/^\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$/.test(v)) { console.error('Versão inválida: ' + v + ' (ex.: 0.2.0-alpha.13 ou 1.0.0)'); process.exit(1); }
+            if (!/^\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+(\.\d+)?)?$/.test(v)) { console.error('Versão inválida: ' + v + ' (ex.: 0.2.0-alpha.13, 1.0.0-beta.3.1 ou 1.0.0)'); process.exit(1); }
             p.version = v;
             const teste = v.includes('-');
             const [owner, repo] = process.env.DESTINO.split('/');
